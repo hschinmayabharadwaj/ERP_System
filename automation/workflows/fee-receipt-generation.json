@@ -1,0 +1,118 @@
+{
+  "name": "Fee Receipt Generation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "fee-payment",
+        "responseMode": "responseNode"
+      },
+      "id": "webhook-node",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Extract payment data from webhook\nconst paymentData = $input.first().json;\n\n// Generate receipt number\nconst receiptNumber = `RCP-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;\n\n// Format payment data for receipt\nconst receiptData = {\n  receiptNumber,\n  studentName: paymentData.studentName,\n  studentId: paymentData.studentId,\n  amount: paymentData.amount,\n  paymentDate: new Date().toISOString(),\n  paymentMethod: paymentData.paymentMethod,\n  semester: paymentData.semester,\n  academicYear: paymentData.academicYear\n};\n\nreturn { receiptData };"
+      },
+      "id": "process-payment",
+      "name": "Process Payment Data",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:5000/api/receipts/generate",
+        "requestMethod": "POST",
+        "jsonParameters": true,
+        "parametersJson": "={{ $json.receiptData }}"
+      },
+      "id": "generate-receipt",
+      "name": "Generate Receipt PDF",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "noreply@erpsystem.com",
+        "toEmail": "={{ $json.studentEmail }}",
+        "subject": "Fee Payment Receipt - {{ $json.receiptNumber }}",
+        "text": "Dear {{ $json.studentName }},\n\nThank you for your payment. Please find your receipt attached.\n\nAmount Paid: ₹{{ $json.amount }}\nPayment Date: {{ $json.paymentDate }}\nReceipt Number: {{ $json.receiptNumber }}\n\nBest regards,\nERP System"
+      },
+      "id": "send-email",
+      "name": "Send Receipt Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"receiptNumber\": $json.receiptNumber, \"message\": \"Receipt generated and sent successfully\" } }}"
+      },
+      "id": "response",
+      "name": "Send Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1120, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Process Payment Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Payment Data": {
+      "main": [
+        [
+          {
+            "node": "Generate Receipt PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Receipt PDF": {
+      "main": [
+        [
+          {
+            "node": "Send Receipt Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Receipt Email": {
+      "main": [
+        [
+          {
+            "node": "Send Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "versionId": "1",
+  "id": "fee-receipt-automation",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": ["erp", "fee", "receipt", "automation"]
+}
