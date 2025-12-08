@@ -169,5 +169,3 @@ For support and questions:
 - Check the documentation in the `docs/` folder
 
 ---
-
-**Happy Coding! 🎉**
