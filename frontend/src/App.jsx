@@ -8,6 +8,7 @@ import Hostel from './pages/Hostel';
 import Reports from './pages/Reports';
 import './styles/App.css';
 import './styles/animations.css';
+import './styles/responsive.css';
 import './styles/index.css';
 
 function App() {

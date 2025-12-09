@@ -1,4 +1,4 @@
-/* Dark Theme App Component Styles */
+/* Enhanced ERP Dark Theme Styles - Cleaned and Optimized */
 
 .App {
   min-height: 100vh;
@@ -6,53 +6,12 @@
   color: var(--text-primary);
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-  filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.3));
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-float infinite 6s ease-in-out;
-  }
-}
-
-.App-header {
-  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-  padding: 2rem;
-  color: var(--text-primary);
-  border-bottom: 1px solid var(--border-primary);
-  box-shadow: var(--shadow);
-}
-
-.App-link {
-  color: var(--primary);
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.2s ease-in-out;
-}
-
-.App-link:hover {
-  color: var(--primary-hover);
-  text-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
-}
-
-@keyframes App-logo-float {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-10px) rotate(180deg);
-  }
-}
-
-/* Enhanced ERP Dark Theme Styles */
+/* Main Container */
 .erp-container {
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
-  padding: 2rem;
-  min-height: calc(100vh - 140px);
+  padding: 2rem 2.5rem;
+  min-height: calc(100vh - 80px);
 }
 
 .erp-main-content {
@@ -69,23 +28,25 @@
   right: 0;
   bottom: 0;
   background: 
-    radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(245, 158, 11, 0.05) 0%, transparent 50%);
+    radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(245, 158, 11, 0.08) 0%, transparent 50%);
   pointer-events: none;
   z-index: -1;
 }
 
+/* Card Styles */
 .erp-card {
   background: var(--bg-card);
   border: 1px solid var(--border-primary);
-  border-radius: 1rem;
-  box-shadow: var(--shadow);
-  padding: 2rem;
+  border-radius: 1.25rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  padding: 2rem 2.5rem;
   margin-bottom: 2rem;
-  transition: all 0.3s ease-in-out;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(10px);
 }
 
 .erp-card::before {
@@ -94,15 +55,15 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
+  height: 3px;
   background: linear-gradient(90deg, var(--primary) 0%, var(--success) 50%, var(--warning) 100%);
   opacity: 0;
   transition: opacity 0.3s ease-in-out;
 }
 
 .erp-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
   border-color: var(--border-secondary);
 }
 
@@ -110,104 +71,24 @@
   opacity: 1;
 }
 
-.erp-button {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.875rem;
-  transition: all 0.2s ease-in-out;
-  position: relative;
-  overflow: hidden;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.erp-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
-}
-
-.erp-button:hover {
-  background: linear-gradient(135deg, var(--primary-hover) 0%, var(--primary-dark) 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
-}
-
-.erp-button:hover::before {
-  left: 100%;
-}
-
-.erp-button:active {
-  transform: translateY(0);
-}
-
-.erp-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1.5rem;
-  background: var(--bg-card);
-  border-radius: 0.75rem;
-  overflow: hidden;
-  box-shadow: var(--shadow);
-}
-
-.erp-table th,
-.erp-table td {
-  padding: 1rem 1.5rem;
-  text-align: left;
-  border-bottom: 1px solid var(--border-primary);
-  transition: all 0.2s ease-in-out;
-}
-
-.erp-table th {
-  background: var(--bg-tertiary);
-  font-weight: 600;
-  color: var(--text-primary);
-  font-size: 0.875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.erp-table td {
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-}
-
-.erp-table tr:hover {
-  background-color: var(--bg-hover);
-}
-
-.erp-table tr:hover td {
-  color: var(--text-primary);
-}
-
 /* Dashboard Grid Layout */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
   margin-bottom: 2rem;
 }
 
 .dashboard-stat-card {
   background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
   border: 1px solid var(--border-primary);
-  border-radius: 1rem;
+  border-radius: 1.25rem;
   padding: 2rem;
-  text-align: center;
-  transition: all 0.3s ease-in-out;
+  text-align: left;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(10px);
 }
 
 .dashboard-stat-card::before {
@@ -217,14 +98,14 @@
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
   opacity: 0;
   transition: opacity 0.3s ease-in-out;
 }
 
 .dashboard-stat-card:hover {
-  transform: translateY(-8px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
   border-color: var(--primary);
 }
 
@@ -233,45 +114,136 @@
 }
 
 .stat-number {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--primary);
+  font-size: 2.75rem;
+  font-weight: 800;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
-  text-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
 .stat-label {
   color: var(--text-secondary);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-weight: 500;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  margin-top: 0.5rem;
 }
 
 /* Form Enhancements */
 .form-section {
   background: var(--bg-card);
   border: 1px solid var(--border-primary);
-  border-radius: 1rem;
-  padding: 2rem;
+  border-radius: 1.25rem;
+  padding: 2rem 2.5rem;
   margin-bottom: 2rem;
 }
 
 .form-section h3 {
   color: var(--text-primary);
   margin-bottom: 1.5rem;
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-size: 1.375rem;
+  font-weight: 700;
 }
 
 .form-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
   margin-bottom: 1.5rem;
 }
 
-/* Responsive Design Enhancements */
+/* Card Header */
+.card-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Table Container */
+.table-container {
+  background-color: transparent;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  margin-top: 1rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: transparent;
+}
+
+.table-header {
+  background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+  border-bottom: 2px solid var(--border-primary);
+}
+
+.table-header th {
+  padding: 1.25rem 1.5rem;
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+
+.table-cell {
+  padding: 1.25rem 1.5rem;
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-primary);
+  transition: all 0.2s ease-in-out;
+}
+
+.table-row {
+  transition: all 0.2s ease-in-out;
+}
+
+.table-row:hover {
+  background-color: var(--bg-hover);
+}
+
+.table-row:hover .table-cell {
+  color: var(--text-primary);
+}
+
+.table-row:last-child .table-cell {
+  border-bottom: none;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .erp-container {
+    padding: 1.5rem;
+  }
+  
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+  
+  .erp-card {
+    padding: 1.75rem;
+  }
+}
+
 @media (max-width: 768px) {
   .erp-container {
     padding: 1rem;
@@ -280,6 +252,7 @@
   .erp-card {
     padding: 1.5rem;
     margin-bottom: 1.5rem;
+    border-radius: 1rem;
   }
   
   .dashboard-grid {
@@ -292,330 +265,37 @@
     gap: 1rem;
   }
   
-  .erp-table th,
-  .erp-table td {
-    padding: 0.75rem 1rem;
-    font-size: 0.8rem;
+  .table-header th,
+  .table-cell {
+    padding: 1rem;
+    font-size: 0.875rem;
+  }
+  
+  .stat-number {
+    font-size: 2.25rem;
+  }
+  
+  .card-title {
+    font-size: 1.25rem;
   }
 }
 
 @media (max-width: 480px) {
   .erp-container {
-    padding: 0.5rem;
+    padding: 0.75rem;
   }
   
   .erp-card {
-    padding: 1rem;
+    padding: 1.25rem;
   }
   
   .stat-number {
     font-size: 2rem;
   }
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-  filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.3));
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-float infinite 6s ease-in-out;
-  }
-}
-
-.App-header {
-  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-  padding: 2rem;
-  color: var(--text-primary);
-  border-bottom: 1px solid var(--border-primary);
-  box-shadow: var(--shadow);
-}
-
-.App-link {
-  color: var(--primary);
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.2s ease-in-out;
-}
-
-.App-link:hover {
-  color: var(--primary-hover);
-  text-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
-}
-
-@keyframes App-logo-float {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-10px) rotate(180deg);
-  }
-}
-
-/* Enhanced ERP Dark Theme Styles */
-.erp-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem;
-  min-height: calc(100vh - 140px);
-}
-
-.erp-main-content {
-  background: var(--bg-primary);
-  min-height: 100vh;
-  position: relative;
-}
-
-.erp-main-content::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(245, 158, 11, 0.05) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: -1;
-}
-
-.erp-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-primary);
-  border-radius: 1rem;
-  box-shadow: var(--shadow);
-  padding: 2rem;
-  margin-bottom: 2rem;
-  transition: all 0.3s ease-in-out;
-  position: relative;
-  overflow: hidden;
-}
-
-.erp-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--primary) 0%, var(--success) 50%, var(--warning) 100%);
-  opacity: 0;
-  transition: opacity 0.3s ease-in-out;
-}
-
-.erp-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--border-secondary);
-}
-
-.erp-card:hover::before {
-  opacity: 1;
-}
-
-.erp-button {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.875rem;
-  transition: all 0.2s ease-in-out;
-  position: relative;
-  overflow: hidden;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.erp-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
-}
-
-.erp-button:hover {
-  background: linear-gradient(135deg, var(--primary-hover) 0%, var(--primary-dark) 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
-}
-
-.erp-button:hover::before {
-  left: 100%;
-}
-
-.erp-button:active {
-  transform: translateY(0);
-}
-
-.erp-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1.5rem;
-  background: var(--bg-card);
-  border-radius: 0.75rem;
-  overflow: hidden;
-  box-shadow: var(--shadow);
-}
-
-.erp-table th,
-.erp-table td {
-  padding: 1rem 1.5rem;
-  text-align: left;
-  border-bottom: 1px solid var(--border-primary);
-  transition: all 0.2s ease-in-out;
-}
-
-.erp-table th {
-  background: var(--bg-tertiary);
-  font-weight: 600;
-  color: var(--text-primary);
-  font-size: 0.875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.erp-table td {
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-}
-
-.erp-table tr:hover {
-  background-color: var(--bg-hover);
-}
-
-.erp-table tr:hover td {
-  color: var(--text-primary);
-}
-
-/* Dashboard Grid Layout */
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  margin-bottom: 2rem;
-}
-
-.dashboard-stat-card {
-  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
-  border: 1px solid var(--border-primary);
-  border-radius: 1rem;
-  padding: 2rem;
-  text-align: center;
-  transition: all 0.3s ease-in-out;
-  position: relative;
-  overflow: hidden;
-}
-
-.dashboard-stat-card::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
-  opacity: 0;
-  transition: opacity 0.3s ease-in-out;
-}
-
-.dashboard-stat-card:hover {
-  transform: translateY(-8px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--primary);
-}
-
-.dashboard-stat-card:hover::before {
-  opacity: 1;
-}
-
-.stat-number {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--primary);
-  margin-bottom: 0.5rem;
-  text-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
-}
-
-.stat-label {
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-weight: 500;
-}
-
-/* Form Enhancements */
-.form-section {
-  background: var(--bg-card);
-  border: 1px solid var(--border-primary);
-  border-radius: 1rem;
-  padding: 2rem;
-  margin-bottom: 2rem;
-}
-
-.form-section h3 {
-  color: var(--text-primary);
-  margin-bottom: 1.5rem;
-  font-size: 1.25rem;
-  font-weight: 600;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-/* Responsive Design Enhancements */
-@media (max-width: 768px) {
-  .erp-container {
-    padding: 1rem;
-  }
   
-  .erp-card {
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-  
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  
-  .form-row {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  
-  .erp-table th,
-  .erp-table td {
-    padding: 0.75rem 1rem;
-    font-size: 0.8rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .erp-container {
-    padding: 0.5rem;
-  }
-  
-  .erp-card {
-    padding: 1rem;
-  }
-  
-  .stat-number {
-    font-size: 2rem;
+  .table-header th,
+  .table-cell {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.8125rem;
   }
 }

@@ -65,14 +65,14 @@ const Admissions = () => {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-2">
         <div>
           <h1 className="text-4xl font-bold text-white mb-2">Admissions Management</h1>
           <p className="text-slate-400 text-lg">Manage student applications and admissions process</p>
         </div>
         <button 
           onClick={() => setIsFormOpen(true)}
-          className="btn btn-primary flex items-center gap-2"
+          className="btn btn-primary flex items-center gap-2 whitespace-nowrap"
         >
           <UserPlus size={20} />
           Add New Application
@@ -119,7 +119,10 @@ const Admissions = () => {
       {/* Applications Table */}
       <div className="erp-card">
         <div className="card-header">
-          <h3 className="card-title">Student Applications ({filteredAdmissions.length})</h3>
+          <h3 className="card-title">
+            <UserPlus size={24} className="text-blue-400" />
+            Student Applications ({filteredAdmissions.length})
+          </h3>
         </div>
         <div className="table-container">
           <table className="table">
@@ -181,9 +184,9 @@ const Admissions = () => {
 
       {/* Add Application Modal */}
       {isFormOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-slate-700">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fade-in-up">
+          <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="p-6 border-b border-slate-700 bg-gradient-to-r from-slate-800 to-slate-700/50">
               <h2 className="text-2xl font-bold text-white">New Application</h2>
               <p className="text-slate-400 mt-1">Add a new student application</p>
             </div>

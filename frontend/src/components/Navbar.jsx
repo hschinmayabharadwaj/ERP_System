@@ -30,7 +30,7 @@ const Navbar = () => {
 
   return (
     <nav className="nav">
-      <div className="erp-container">
+      <div className="erp-container" style={{ maxWidth: '100%', padding: '0.75rem 2rem' }}>
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <div className="flex items-center gap-4">
@@ -51,13 +51,13 @@ const Navbar = () => {
               <Link
                 key={path}
                 to={path}
-                className={`nav-link flex items-center gap-3 px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
+                className={`nav-link flex items-center gap-2.5 px-5 py-2.5 rounded-xl font-semibold transition-all duration-200 ${
                   isActive(path)
-                    ? 'active bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                    ? 'active'
                     : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
                 }`}
               >
-                <Icon size={20} />
+                <Icon size={18} />
                 <span>{label}</span>
               </Link>
             ))}

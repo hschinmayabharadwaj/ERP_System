@@ -71,59 +71,59 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 w-full">
       {/* Animated Header Section */}
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-hidden rounded-2xl mb-6">
         {/* Animated Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-800 opacity-90"></div>
         <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-pink-400/20 animate-pulse"></div>
         
-        {/* Floating Elements */}
-        <div className="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full animate-bounce delay-100"></div>
-        <div className="absolute top-20 right-20 w-16 h-16 bg-white/10 rounded-full animate-bounce delay-300"></div>
-        <div className="absolute bottom-10 left-1/4 w-12 h-12 bg-white/10 rounded-full animate-bounce delay-500"></div>
-        <div className="absolute bottom-20 right-1/3 w-14 h-14 bg-white/10 rounded-full animate-bounce delay-700"></div>
+        {/* Floating Elements - Hidden on mobile for cleaner look */}
+        <div className="hidden md:block absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full animate-bounce delay-100"></div>
+        <div className="hidden md:block absolute top-20 right-20 w-16 h-16 bg-white/10 rounded-full animate-bounce delay-300"></div>
+        <div className="hidden md:block absolute bottom-10 left-1/4 w-12 h-12 bg-white/10 rounded-full animate-bounce delay-500"></div>
+        <div className="hidden md:block absolute bottom-20 right-1/3 w-14 h-14 bg-white/10 rounded-full animate-bounce delay-700"></div>
         
         {/* Main Content */}
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 p-8 lg:p-12">
-          <div className="space-y-4">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center animate-spin-slow">
-                <TrendingUp className="w-8 h-8 text-white" />
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 p-6 md:p-8 lg:p-12">
+          <div className="space-y-4 flex-1">
+            <div className="flex items-center gap-3 md:gap-4 mb-4">
+              <div className="w-12 h-12 md:w-16 md:h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center animate-spin-slow flex-shrink-0">
+                <TrendingUp className="w-6 h-6 md:w-8 md:h-8 text-white" />
               </div>
               <div>
-                <h1 className="text-6xl lg:text-7xl font-black text-white mb-2 animate-fade-in-up">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white mb-2 animate-fade-in-up leading-tight">
                   ERP System
                 </h1>
-                <div className="w-32 h-1 bg-gradient-to-r from-yellow-400 to-pink-400 rounded-full animate-pulse"></div>
+                <div className="w-24 md:w-32 h-1 bg-gradient-to-r from-yellow-400 to-pink-400 rounded-full animate-pulse"></div>
               </div>
             </div>
-            <p className="text-slate-200 text-xl lg:text-2xl font-medium animate-fade-in-up delay-200">
+            <p className="text-slate-200 text-lg md:text-xl lg:text-2xl font-medium animate-fade-in-up delay-200">
               Complete Educational Management Solution
             </p>
-            <p className="text-slate-300 text-lg animate-fade-in-up delay-300">
+            <p className="text-slate-300 text-base md:text-lg animate-fade-in-up delay-300">
               Streamline admissions, manage fees, oversee hostels, and generate comprehensive reports
             </p>
           </div>
           
-          <div className="flex flex-col gap-4 animate-fade-in-right">
+          <div className="flex flex-col gap-4 animate-fade-in-right lg:min-w-[280px]">
             <div className="flex items-center gap-3 text-slate-200 bg-white/10 backdrop-blur-sm rounded-xl p-4">
-              <Calendar size={24} className="text-yellow-400" />
-              <div>
+              <Calendar size={24} className="text-yellow-400 flex-shrink-0" />
+              <div className="min-w-0">
                 <p className="font-semibold">Today</p>
-                <p className="text-sm">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                <p className="text-xs md:text-sm truncate">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
               </div>
             </div>
-            <button className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center gap-3">
+            <button className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3 whitespace-nowrap">
               <Clock size={20} />
-              Generate Report
+              <span>Generate Report</span>
             </button>
           </div>
         </div>
         
         {/* Wave Animation at Bottom */}
-        <div className="absolute bottom-0 left-0 w-full overflow-hidden">
-          <svg className="relative block w-full h-20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none">
+          <svg className="relative block w-full h-12 md:h-20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
             <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" 
                   fill="rgba(255,255,255,0.1)" className="animate-wave"></path>
           </svg>
@@ -134,21 +134,21 @@ const Dashboard = () => {
       <div className="dashboard-grid">
         {stats.map((stat, index) => (
           <div key={index} className="dashboard-stat-card group">
-            <div className="flex items-start justify-between mb-4">
-              <div className={`w-16 h-16 bg-gradient-to-br ${stat.gradient} rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+            <div className="flex items-start justify-between mb-5">
+              <div className={`w-16 h-16 bg-gradient-to-br ${stat.gradient} rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}>
                 <stat.icon className="w-8 h-8 text-white" />
               </div>
-              <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${
-                stat.trend === 'up' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'
+              <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${
+                stat.trend === 'up' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'
               }`}>
-                {stat.trend === 'up' ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
+                {stat.trend === 'up' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
                 {stat.change}
               </div>
             </div>
             <div>
               <p className="stat-number">{stat.value}</p>
               <p className="stat-label">{stat.title}</p>
-              <p className="text-xs text-slate-500 mt-2">vs last month</p>
+              <p className="text-xs text-slate-500 mt-3 font-medium">vs last month</p>
             </div>
           </div>
         ))}
@@ -160,7 +160,7 @@ const Dashboard = () => {
         <div className="xl:col-span-2">
           <div className="erp-card">
             <div className="card-header">
-              <h3 className="card-title flex items-center gap-3">
+              <h3 className="card-title">
                 <Users size={24} className="text-blue-400" />
                 Recent Admissions
               </h3>
@@ -208,27 +208,27 @@ const Dashboard = () => {
         <div>
           <div className="erp-card">
             <div className="card-header">
-              <h3 className="card-title flex items-center gap-3">
+              <h3 className="card-title">
                 <DollarSign size={24} className="text-green-400" />
                 Pending Payments
               </h3>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-3">
               {pendingPayments.map((payment, index) => (
-                <div key={index} className="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-slate-600 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
-                      <span className="text-white font-medium text-sm">{payment.name.charAt(0)}</span>
+                <div key={index} className="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-slate-600 hover:bg-slate-800/70 transition-all duration-200">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="w-11 h-11 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
+                      <span className="text-white font-semibold text-sm">{payment.name.charAt(0)}</span>
                     </div>
-                    <div>
-                      <p className="font-medium text-white">{payment.name}</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-white truncate">{payment.name}</p>
                       <p className="text-sm text-slate-400">Due: {payment.due}</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-bold text-white">{payment.amount}</p>
-                    <p className={`text-xs font-medium ${getPriorityColor(payment.priority)}`}>
-                      {payment.priority} priority
+                  <div className="text-right flex-shrink-0 ml-3">
+                    <p className="font-bold text-white text-lg">{payment.amount}</p>
+                    <p className={`text-xs font-semibold ${getPriorityColor(payment.priority)} uppercase`}>
+                      {payment.priority}
                     </p>
                   </div>
                 </div>
@@ -246,22 +246,30 @@ const Dashboard = () => {
         <div className="card-header">
           <h3 className="card-title">Quick Actions</h3>
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <button className="btn btn-primary flex flex-col items-center gap-3 p-6 h-auto">
-            <Users size={24} />
-            <span>Add Student</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <button className="btn btn-primary flex flex-col items-center justify-center gap-3 p-6 h-auto min-h-[140px] hover:scale-105 transition-transform">
+            <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
+              <Users size={28} />
+            </div>
+            <span className="text-center font-semibold">Add Student</span>
           </button>
-          <button className="btn btn-secondary flex flex-col items-center gap-3 p-6 h-auto">
-            <DollarSign size={24} />
-            <span>Record Payment</span>
+          <button className="btn btn-secondary flex flex-col items-center justify-center gap-3 p-6 h-auto min-h-[140px] hover:scale-105 transition-transform">
+            <div className="w-14 h-14 bg-slate-700/50 rounded-xl flex items-center justify-center">
+              <DollarSign size={28} />
+            </div>
+            <span className="text-center font-semibold">Record Payment</span>
           </button>
-          <button className="btn btn-secondary flex flex-col items-center gap-3 p-6 h-auto">
-            <Building size={24} />
-            <span>Assign Room</span>
+          <button className="btn btn-secondary flex flex-col items-center justify-center gap-3 p-6 h-auto min-h-[140px] hover:scale-105 transition-transform">
+            <div className="w-14 h-14 bg-slate-700/50 rounded-xl flex items-center justify-center">
+              <Building size={28} />
+            </div>
+            <span className="text-center font-semibold">Assign Room</span>
           </button>
-          <button className="btn btn-secondary flex flex-col items-center gap-3 p-6 h-auto">
-            <TrendingUp size={24} />
-            <span>View Reports</span>
+          <button className="btn btn-secondary flex flex-col items-center justify-center gap-3 p-6 h-auto min-h-[140px] hover:scale-105 transition-transform">
+            <div className="w-14 h-14 bg-slate-700/50 rounded-xl flex items-center justify-center">
+              <TrendingUp size={28} />
+            </div>
+            <span className="text-center font-semibold">View Reports</span>
           </button>
         </div>
       </div>

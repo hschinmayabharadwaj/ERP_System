@@ -85,14 +85,14 @@ const Fees = () => {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-2">
         <div>
           <h1 className="text-4xl font-bold text-white mb-2">Fee Management</h1>
           <p className="text-slate-400 text-lg">Track and manage student fee payments</p>
         </div>
         <button 
           onClick={() => setIsPaymentFormOpen(true)}
-          className="btn btn-primary flex items-center gap-2"
+          className="btn btn-primary flex items-center gap-2 whitespace-nowrap"
         >
           <Plus size={20} />
           Record Payment
@@ -191,7 +191,10 @@ const Fees = () => {
       {/* Fee Records Table */}
       <div className="erp-card">
         <div className="card-header">
-          <h3 className="card-title">Fee Records ({filteredRecords.length})</h3>
+          <h3 className="card-title">
+            <CreditCard size={24} className="text-green-400" />
+            Fee Records ({filteredRecords.length})
+          </h3>
         </div>
         <div className="table-container">
           <table className="table">
@@ -263,9 +266,9 @@ const Fees = () => {
 
       {/* Payment Form Modal */}
       {isPaymentFormOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-2xl">
-            <div className="p-6 border-b border-slate-700">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fade-in-up">
+          <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-2xl shadow-2xl">
+            <div className="p-6 border-b border-slate-700 bg-gradient-to-r from-slate-800 to-slate-700/50">
               <h2 className="text-2xl font-bold text-white">Record Payment</h2>
               <p className="text-slate-400 mt-1">Record a new fee payment</p>
             </div>
