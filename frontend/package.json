@@ -10,10 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.4.2",
     "@tsparticles/engine": "^3.9.1",
     "axios": "^1.5.0",
     "clsx": "^2.0.0",
     "date-fns": "^2.30.0",
+    "framer-motion": "^12.23.26",
     "lucide-react": "^0.263.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -21,7 +24,8 @@
     "react-query": "^3.39.3",
     "react-router-dom": "^6.15.0",
     "recharts": "^2.8.0",
-    "tailwind-merge": "^1.14.0"
+    "tailwind-merge": "^1.14.0",
+    "three": "^0.182.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",

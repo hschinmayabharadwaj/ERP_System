@@ -1,34 +1,27 @@
-import React, { useState, useRef, useEffect, Suspense, lazy } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Home, 
-  UserPlus, 
-  CreditCard, 
-  Building, 
+import React, { useState, useRef, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import Card3D from "./Card3D";
+import {
+  Home,
+  UserPlus,
+  CreditCard,
+  Building,
   FileText,
-  Menu,
-  X,
-  Settings,
-  User,
-  Bell,
   Users,
   BarChart,
-  ChevronDown
-} from 'lucide-react';
+  Settings,
+  Menu,
+  X
+} from "lucide-react";
 
-// Lazy load Card3D to prevent blocking the entire page if it fails
-const Card3D = lazy(() => import('./ui/Card3D').catch(() => ({ 
-  default: () => <div className="w-full h-[300px] bg-slate-800 rounded-lg flex items-center justify-center text-slate-400">3D Preview Unavailable</div> 
-})));
-
-// ERP System navigation items for main nav
+// ERP System navigation items
 const navItems = [
-  { path: '/', label: 'DASHBOARD', icon: Home },
-  { path: '/admissions', label: 'ADMISSIONS', icon: UserPlus },
-  { path: '/fees', label: 'FEES', icon: CreditCard },
-  { path: '/hostel', label: 'HOSTEL', icon: Building },
-  { path: '/reports', label: 'REPORTS', icon: FileText },
+  { title: "DASHBOARD", href: "/", icon: Home },
+  { title: "ADMISSIONS", href: "/admissions", icon: UserPlus },
+  { title: "FEES", href: "/fees", icon: CreditCard },
+  { title: "HOSTEL", href: "/hostel", icon: Building },
+  { title: "REPORTS", href: "/reports", icon: FileText },
 ];
 
 // ERP feature components for mega dropdown
@@ -84,7 +77,7 @@ const erpFeatures = [
 ];
 
 /**
- * Menu Icon Component
+ * Menu Icon Component - Animated hamburger/close icon
  */
 function MenuIcon({ isOpen = false }) {
   if (isOpen) {
@@ -117,7 +110,7 @@ function ERPLogo() {
 }
 
 /**
- * Decrypt Effect Component
+ * Decrypt Effect Component - Text animation effect
  */
 function DecryptEffect({ text, startDecrypting = false }) {
   const [decodedText, setDecodedText] = useState(startDecrypting ? "" : text);
@@ -166,7 +159,7 @@ function DecryptEffect({ text, startDecrypting = false }) {
 }
 
 /**
- * Stable Decrypt Effect
+ * Stable Decrypt Effect - Continuous animation
  */
 function StableDecryptEffect({ text }) {
   const [decodedText, setDecodedText] = useState(text);
@@ -216,22 +209,22 @@ function StableDecryptEffect({ text }) {
 function NavbarItem({ item }) {
   const [isHovered, setIsHovered] = useState(false);
   const location = useLocation();
-  const isActive = location.pathname === item.path;
+  const isActive = location.pathname === item.href;
 
   return (
     <Link
-      to={item.path}
+      to={item.href}
       className={`relative py-2 text-xs font-medium tracking-wider transition-colors ${
         isActive ? 'text-blue-400' : 'text-white/70 hover:text-white/100'
       }`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <span className="inline-block relative" style={{ width: `${item.label.length}ch` }}>
+      <span className="inline-block relative" style={{ width: `${item.title.length}ch` }}>
         {isHovered ? (
-          <DecryptEffect text={item.label} />
+          <DecryptEffect text={item.title} />
         ) : (
-          <span className="font-medium">{item.label}</span>
+          <span className="font-medium">{item.title}</span>
         )}
       </span>
     </Link>
@@ -280,7 +273,7 @@ function FeaturesLink({ onDropdownChange }) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <style>{`
+      <style jsx>{`
         .features-button {
           position: relative;
           overflow: hidden;
@@ -385,7 +378,7 @@ function FeaturesLink({ onDropdownChange }) {
 }
 
 /**
- * Mega Dropdown Component
+ * Mega Dropdown Component - Full-screen feature showcase
  */
 const MegaDropdown = React.forwardRef(({ onClose }, ref) => {
   const [visibleRows, setVisibleRows] = useState(0);
@@ -521,46 +514,40 @@ const MegaDropdown = React.forwardRef(({ onClose }, ref) => {
             Comprehensive tools for modern education management
           </h2>
           <div className="mt-auto mb-4 w-full">
-            <Suspense fallback={
-              <div className="mx-auto w-full max-w-[400px] h-[300px] bg-slate-800 rounded-lg flex items-center justify-center">
-                <div className="text-slate-400">Loading 3D preview...</div>
-              </div>
-            }>
-              <Card3D
-                content={
-                  <div className="flex p-10 flex-col h-full text-center">
-                    {displayedFeature ? (
-                      <>
-                        <div className="text-xs text-neutral-500 mb-2">
-                          {displayedFeature.id}
-                        </div>
-                        <div className="text-xl font-light mb-4">
-                          {displayedFeature.title}
-                        </div>
-                        <div className="flex-1 flex items-center justify-center rounded-lg mb-4 overflow-hidden">
-                          <div className="relative w-full h-[100px]" style={{
-                            backgroundImage: `url(${displayedFeature.previewImage})`,
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center'
-                          }}>
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-                          </div>
-                        </div>
-                        <p className="text-sm text-neutral-400 mb-4">
-                          {displayedFeature.description}
-                        </p>
-                      </>
-                    ) : (
-                      <div className="flex items-center justify-center h-full text-neutral-500">
-                        <span>Hover over a feature to preview</span>
+            <Card3D
+              content={
+                <div className="flex p-10 flex-col h-full text-center">
+                  {displayedFeature ? (
+                    <>
+                      <div className="text-xs text-neutral-500 mb-2">
+                        {displayedFeature.id}
                       </div>
-                    )}
-                  </div>
-                }
-                maxRotation={0.03}
-                className="mx-auto w-full max-w-[400px] h-[300px]"
-              />
-            </Suspense>
+                      <div className="text-xl font-light mb-4">
+                        {displayedFeature.title}
+                      </div>
+                      <div className="flex-1 flex items-center justify-center rounded-lg mb-4 overflow-hidden">
+                        <div className="relative w-full h-[100px]" style={{
+                          backgroundImage: `url(${displayedFeature.previewImage})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center'
+                        }}>
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                        </div>
+                      </div>
+                      <p className="text-sm text-neutral-400 mb-4">
+                        {displayedFeature.description}
+                      </p>
+                    </>
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-neutral-500">
+                      <span>Hover over a feature to preview</span>
+                    </div>
+                  )}
+                </div>
+              }
+              maxRotation={0.03}
+              className="mx-auto w-full max-w-[400px] h-[300px]"
+            />
           </div>
         </motion.div>
 
@@ -650,104 +637,50 @@ const MegaDropdown = React.forwardRef(({ onClose }, ref) => {
   );
 });
 
-const Navbar = () => {
-  const location = useLocation();
-  const [isNavDropdownOpen, setIsNavDropdownOpen] = React.useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
-  const [isProfileOpen, setIsProfileOpen] = React.useState(false);
+/**
+ * Main 3D Interactive Navbar Component
+ */
+export function ThreeDInteractiveNavbar() {
+  const [isNavDropdownOpen, setIsNavDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="w-full bg-black text-white border-b border-neutral-800 shadow-2xl">
-      <div className="grid grid-cols-[auto_auto_1fr_auto] items-center h-20 max-w-[1920px] mx-auto">
+    <nav className="w-full bg-black text-white border border-neutral-800">
+      <div className="grid grid-cols-[1fr_auto] md:grid-cols-[auto_auto_1fr_auto] items-center h-20">
         {/* Logo Section */}
         <div className="px-4 md:px-10 h-full flex items-center border-r border-neutral-800">
-          <Link to="/" className="flex items-center gap-3 group">
+          <Link to="/" className="flex items-center gap-3">
             <ERPLogo />
             <div>
-              <span className="font-bold text-lg tracking-wide group-hover:text-blue-400 transition-colors">
-                ERP SYSTEM
-              </span>
+              <span className="font-bold text-lg tracking-wide">ERP SYSTEM</span>
               <p className="text-xs text-neutral-500">Education Management</p>
             </div>
           </Link>
         </div>
 
-        {/* Features Dropdown */}
-        <div className="border-r border-neutral-800 h-full hidden md:block">
-          <FeaturesLink onDropdownChange={setIsNavDropdownOpen} />
-        </div>
-
-        {/* Center Navigation Items */}
-        <div className="hidden md:flex items-center justify-center h-full">
-          <div className="flex items-center gap-x-10 px-10">
-            {navItems.map((item) => (
-              <NavbarItem key={item.label} item={item} />
-            ))}
-          </div>
-        </div>
-
-        {/* Right Side Actions */}
-        <div className="flex items-center gap-4 px-4 md:px-10 border-l border-neutral-800 h-full">
-          {/* Notifications - Desktop */}
-          <button className="hidden md:flex relative p-3 rounded-xl bg-neutral-800/50 hover:bg-neutral-700/50 transition-all duration-300 group">
-            <Bell size={20} className="text-neutral-300 group-hover:text-white" />
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center animate-pulse">
-              <span className="text-[10px] text-white font-bold">3</span>
-            </span>
-          </button>
-
-          {/* Profile Dropdown - Desktop */}
-          <div className="relative hidden md:block">
-            <button 
-              onClick={() => setIsProfileOpen(!isProfileOpen)}
-              className="flex items-center gap-3 p-2 pr-4 rounded-xl bg-neutral-800/50 hover:bg-neutral-700/50 transition-all duration-300"
-            >
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
-                <User size={18} className="text-white" />
-              </div>
-              <div className="hidden lg:block text-left">
-                <p className="text-sm font-semibold text-white">Admin User</p>
-                <p className="text-xs text-neutral-400">Administrator</p>
-              </div>
-            </button>
-
-            <AnimatePresence>
-              {isProfileOpen && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                  className="absolute right-0 top-full mt-2 w-56 bg-neutral-900 rounded-xl border border-neutral-700 shadow-2xl z-[100] overflow-hidden"
-                >
-                  <div className="p-2">
-                    <button className="w-full flex items-center gap-3 px-4 py-3 text-neutral-300 hover:text-white hover:bg-neutral-800 rounded-lg transition-all duration-200">
-                      <User size={16} />
-                      <span className="font-medium">My Profile</span>
-                    </button>
-                    <button className="w-full flex items-center gap-3 px-4 py-3 text-neutral-300 hover:text-white hover:bg-neutral-800 rounded-lg transition-all duration-200">
-                      <Settings size={16} />
-                      <span className="font-medium">Settings</span>
-                    </button>
-                    <div className="my-2 border-t border-neutral-700"></div>
-                    <button className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-all duration-200">
-                      <X size={16} />
-                      <span className="font-medium">Sign Out</span>
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Mobile Menu Button */}
+        {/* Mobile Menu Button */}
+        <div className="px-4 h-full flex md:hidden items-center justify-end">
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="flex md:hidden items-center justify-center w-10 h-10 rounded-full bg-neutral-900 hover:bg-neutral-800 transition-colors"
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-neutral-900"
             aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
           >
             <MenuIcon isOpen={isMobileMenuOpen} />
           </button>
+        </div>
+
+        {/* Features Link - Desktop */}
+        <div className="border-r border-neutral-800 h-full hidden md:block">
+          <FeaturesLink onDropdownChange={setIsNavDropdownOpen} />
+        </div>
+
+        {/* Navigation Items - Desktop */}
+        <div className="hidden md:flex items-center h-full pl-10">
+          <div className="grid grid-flow-col auto-cols-auto gap-x-10">
+            {navItems.map((item) => (
+              <NavbarItem key={item.title} item={item} />
+            ))}
+          </div>
         </div>
       </div>
 
@@ -766,13 +699,9 @@ const Navbar = () => {
               <div className="py-2 border-b border-neutral-800">
                 <button
                   onClick={() => setIsNavDropdownOpen(!isNavDropdownOpen)}
-                  className="flex items-center justify-between w-full py-3 hover:text-blue-400 transition-colors"
+                  className="flex items-center justify-between w-full py-3"
                 >
-                  <span className="text-sm font-semibold tracking-wide">FEATURES</span>
-                  <ChevronDown 
-                    size={16} 
-                    className={`transition-transform duration-300 ${isNavDropdownOpen ? 'rotate-180' : ''}`}
-                  />
+                  <span className="text-sm tracking-wide">FEATURES</span>
                 </button>
 
                 <AnimatePresence>
@@ -806,18 +735,14 @@ const Navbar = () => {
               {/* Main navigation items */}
               {navItems.map((item) => {
                 const IconComponent = item.icon;
-                const isActive = location.pathname === item.path;
                 return (
                   <Link
-                    key={item.label}
-                    to={item.path}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`flex items-center gap-3 text-sm font-medium tracking-wider py-2 ${
-                      isActive ? 'text-blue-400' : 'text-white/70 hover:text-white'
-                    }`}
+                    key={item.title}
+                    to={item.href}
+                    className="flex items-center gap-3 text-sm font-medium tracking-wider text-white/70 hover:text-white py-2"
                   >
                     <IconComponent size={18} />
-                    <span>{item.label}</span>
+                    <span>{item.title}</span>
                   </Link>
                 );
               })}
@@ -827,6 +752,6 @@ const Navbar = () => {
       </AnimatePresence>
     </nav>
   );
-};
+}
 
-export default Navbar;
+export default ThreeDInteractiveNavbar;

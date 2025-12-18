@@ -1,5 +1,101 @@
 /* Enhanced ERP Dark Theme Styles - Cleaned and Optimized */
 
+/* ===== NAVBAR STYLES ===== */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  backdrop-filter: blur(16px);
+  background: rgba(0, 0, 0, 0.95);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 
+              0 0 40px rgba(59, 130, 246, 0.1);
+  border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+/* Navbar hover effects */
+nav a {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.05em;
+}
+
+nav a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #3b82f6, #06b6d4, #8b5cf6);
+  transition: width 0.3s ease-in-out;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+}
+
+nav a:hover::after,
+nav a.text-blue-400::after {
+  width: 100%;
+}
+
+nav a:hover {
+  text-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+}
+
+/* Features button enhancements */
+.features-button {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.features-button:hover {
+  background: rgba(30, 41, 59, 0.5);
+}
+
+/* Profile and notification buttons */
+nav button {
+  transition: all 0.3s ease;
+}
+
+nav button:hover {
+  transform: translateY(-2px);
+}
+
+nav button:active {
+  transform: translateY(0);
+}
+
+/* Logo animation */
+.w-10.h-10.bg-gradient-to-br {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: pulse-subtle 3s ease-in-out infinite;
+}
+
+.w-10.h-10.bg-gradient-to-br:hover {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 8px 16px rgba(59, 130, 246, 0.4);
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
+  }
+}
+
+/* Notification badge pulse */
+.bg-red-500.rounded-full {
+  animation: pulse-badge 2s ease-in-out infinite;
+}
+
+@keyframes pulse-badge {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
 .App {
   min-height: 100vh;
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);

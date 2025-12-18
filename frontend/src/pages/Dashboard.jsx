@@ -1,5 +1,6 @@
 import React from 'react';
-import { Users, DollarSign, Building, TrendingUp, Calendar, Clock, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { Users, DollarSign, Building, TrendingUp, Calendar, Clock, ArrowUpRight, ArrowDownRight, Bell, Shield, BarChart2, Zap } from 'lucide-react';
+import { BentoGrid, BentoGridItem } from '../components/ui/BentoGrid';
 
 const Dashboard = () => {
 
@@ -272,6 +273,60 @@ const Dashboard = () => {
             <span className="text-center font-semibold">View Reports</span>
           </button>
         </div>
+      </div>
+
+      {/* ERP Features Showcase - BentoGrid */}
+      <div className="erp-card">
+        <div className="card-header mb-6">
+          <h3 className="card-title flex items-center gap-3">
+            <Zap size={24} className="text-yellow-400" />
+            System Features
+          </h3>
+          <p className="text-slate-400 text-sm mt-2">Explore powerful features that make management effortless</p>
+        </div>
+        
+        <BentoGrid>
+          <BentoGridItem
+            title="Real-time Notifications"
+            description="Stay updated with instant alerts for admissions, payments, and important events across all devices."
+            header={
+              <div className="h-full w-full bg-gradient-to-br from-blue-500/20 to-purple-600/20 flex items-center justify-center">
+                <Bell size={64} className="text-blue-400 opacity-50" />
+              </div>
+            }
+            className="md:col-span-1"
+          />
+          <BentoGridItem
+            title="Student Management System"
+            description="Comprehensive tools to manage student records, admissions, attendance, and academic performance."
+            header={
+              <div className="h-full w-full bg-gradient-to-br from-green-500/20 to-emerald-600/20 flex items-center justify-center">
+                <Users size={64} className="text-green-400 opacity-50" />
+              </div>
+            }
+            className="md:col-span-2"
+          />
+          <BentoGridItem
+            title="Advanced Analytics Dashboard"
+            description="Visualize key metrics, trends, and insights with interactive charts and comprehensive reports."
+            header={
+              <div className="h-full w-full bg-gradient-to-br from-purple-500/20 to-pink-600/20 flex items-center justify-center">
+                <BarChart2 size={64} className="text-purple-400 opacity-50" />
+              </div>
+            }
+            className="md:col-span-2"
+          />
+          <BentoGridItem
+            title="Secure & Reliable"
+            description="Enterprise-grade security with encrypted data storage and regular automated backups."
+            header={
+              <div className="h-full w-full bg-gradient-to-br from-orange-500/20 to-red-600/20 flex items-center justify-center">
+                <Shield size={64} className="text-orange-400 opacity-50" />
+              </div>
+            }
+            className="md:col-span-1"
+          />
+        </BentoGrid>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { FileText, Download, Calendar, Filter, BarChart3, PieChart, TrendingUp, Users, DollarSign, Building } from 'lucide-react';
+import { FileText, Download, Calendar, Filter, BarChart3, PieChart, TrendingUp, Users, DollarSign, Building, Server } from 'lucide-react';
+import { ServerManagementTable } from '../components/ui/ServerManagementTable';
 
 const Reports = () => {
   const [selectedReport, setSelectedReport] = useState('overview');
@@ -328,6 +329,23 @@ const Reports = () => {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* System Resources - Server Management */}
+      <div className="erp-card">
+        <div className="card-header mb-6">
+          <h3 className="card-title flex items-center gap-3">
+            <Server size={24} className="text-purple-400" />
+            System Resources Management
+          </h3>
+          <p className="text-slate-400 text-sm mt-2">Monitor and manage server infrastructure</p>
+        </div>
+        <ServerManagementTable 
+          title="ERP System Servers" 
+          onStatusChange={(serverId, newStatus) => {
+            console.log(`Server ${serverId} status changed to ${newStatus}`);
+          }}
+        />
       </div>
     </div>
   );
