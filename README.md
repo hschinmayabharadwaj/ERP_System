@@ -1,95 +1,159 @@
-# ERP System for Educational Institutions
+# ERP System - Educational Resource Planning
 
-A comprehensive Enterprise Resource Planning (ERP) system designed specifically for educational institutions to manage admissions, fees, hostel accommodations, and generate automated reports.
+A comprehensive ERP system for educational institutions built with modern web technologies.
 
 ## 🏗️ Architecture
 
-This project follows a modern full-stack architecture:
+This project uses a **dual backend architecture**:
 
-- **Backend**: Node.js + Express.js + MongoDB
-- **Frontend**: React + Vite + Tailwind CSS
-- **Automation**: n8n workflows for automated processes
-- **Database**: MongoDB with structured schemas
+| Backend | Technology | Purpose |
+|---------|------------|---------|
+| **Node.js API** | Express.js + MongoDB | Core CRUD operations, authentication, real-time data |
+| **Python API** | FastAPI + Motor | Advanced analytics, report generation, data exports |
 
 ## 📁 Project Structure
 
 ```
-erp-system/
-├── backend/                # Server-side API
+ERP_System/
+├── frontend/          # React + Vite frontend
 │   ├── src/
-│   │   ├── controllers/    # Business logic
-│   │   ├── models/         # Database schemas
-│   │   ├── routes/         # API endpoints
-│   │   ├── utils/          # Helper functions
-│   │   └── index.js        # Main server file
-│   ├── package.json
-│   └── .env                # Environment variables
-│
-├── frontend/               # React dashboard
-│   ├── src/
-│   │   ├── components/     # Reusable UI components
-│   │   ├── pages/          # Application screens
-│   │   ├── hooks/          # Custom React hooks
-│   │   ├── services/       # API communication
-│   │   └── styles/         # CSS configurations
+│   │   ├── components/    # Reusable UI components
+│   │   ├── pages/         # Page components
+│   │   └── lib/           # API services & utilities
 │   └── package.json
-│
-├── automation/             # n8n automation workflows
-├── database/               # Database setup and migrations
-├── docs/                   # Project documentation
-└── package.json            # Root workspace configuration
+├── backend/           # Node.js/Express backend
+│   ├── src/
+│   │   ├── models/        # MongoDB schemas
+│   │   ├── routes/        # API routes
+│   │   ├── middleware/    # Auth middleware
+│   │   └── seed.js        # Database seeder
+│   └── package.json
+├── python-backend/    # Python/FastAPI backend
+│   ├── main.py           # FastAPI application
+│   └── requirements.txt
+├── automation/        # n8n automation workflows
+└── database/          # Database migrations & seeds
 ```
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-- Node.js (v16 or higher)
-- MongoDB (local or cloud)
-- npm or yarn
+- Node.js 18+
+- Python 3.10+
+- MongoDB (local or Atlas)
 
-### Installation
+### 1. Clone & Install
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd erp-system
-   ```
+```bash
+# Clone the repository
+git clone https://github.com/hschinmayabharadwaj/ERP_System.git
+cd ERP_System
 
-2. **Install all dependencies**
-   ```bash
-   npm run install:all
-   ```
+# Install frontend dependencies
+cd frontend && npm install
 
-3. **Configure environment variables**
-   ```bash
-   cp backend/.env.example backend/.env
-   # Edit backend/.env with your configuration
-   ```
+# Install backend dependencies
+cd ../backend && npm install
 
-4. **Start the development servers**
-   ```bash
-   npm run dev
-   ```
+# Install Python dependencies
+cd ../python-backend
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
 
-This will start:
-- Backend API server on `http://localhost:5000`
-- Frontend development server on `http://localhost:3000`
+### 2. Configure Environment
 
-## 🔧 Available Scripts
+**backend/.env:**
+```env
+PORT=5000
+NODE_ENV=development
+MONGODB_URI=mongodb://localhost:27017/erp_system
+JWT_SECRET=your-secret-key
+```
 
-### Root Level
-- `npm run dev` - Start both frontend and backend in development mode
-- `npm run install:all` - Install dependencies for all workspaces
-- `npm run build` - Build the frontend for production
+**python-backend/.env:**
+```env
+MONGODB_URI=mongodb://localhost:27017
+DATABASE_NAME=erp_system
+JWT_SECRET=your-secret-key
+```
 
-### Backend
-- `npm run dev:backend` - Start backend development server
-- `npm start --workspace=backend` - Start backend in production mode
+**frontend/.env:**
+```env
+VITE_API_URL=http://localhost:5000/api
+VITE_PYTHON_API_URL=http://localhost:8000/api/py
+```
 
-### Frontend
-- `npm run dev:frontend` - Start frontend development server
-- `npm run build --workspace=frontend` - Build frontend for production
+### 3. Seed Database
+
+```bash
+cd backend
+npm run seed
+```
+
+### 4. Start All Services
+
+**Terminal 1 - Node.js Backend:**
+```bash
+cd backend && npm run dev
+# Running on http://localhost:5000
+```
+
+**Terminal 2 - Python Backend:**
+```bash
+cd python-backend
+source venv/bin/activate
+uvicorn main:app --reload --port 8000
+# Running on http://localhost:8000
+```
+
+**Terminal 3 - Frontend:**
+```bash
+cd frontend && npm run dev
+# Running on http://localhost:3000
+```
+
+## � Default Credentials
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@erpsystem.com | password123 |
+| Staff | staff@erpsystem.com | password123 |
+| Accountant | accountant@erpsystem.com | password123 |
+| Warden | warden@erpsystem.com | password123 |
+
+## 📚 API Documentation
+
+### Node.js API (Port 5000)
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/auth/login` | POST | User authentication |
+| `/api/auth/register` | POST | User registration |
+| `/api/students` | GET/POST | Students CRUD |
+| `/api/students/:id` | GET/PUT/DELETE | Single student |
+| `/api/fees` | GET/POST | Fee records |
+| `/api/payments` | GET/POST | Payment records |
+| `/api/hostel/rooms` | GET/POST | Room management |
+| `/api/admissions` | GET/POST | Admission applications |
+| `/api/dashboard/overview` | GET | Dashboard data |
+
+### Python API (Port 8000)
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/py/analytics/overview` | GET | Analytics overview |
+| `/api/py/analytics/trends` | GET | Trend data |
+| `/api/py/analytics/predictions` | GET | Predictive analytics |
+| `/api/py/reports/students/export` | GET | Export students (CSV/Excel) |
+| `/api/py/reports/fees/export` | GET | Export fees (CSV/Excel) |
+| `/api/py/reports/payments/export` | GET | Export payments (CSV/Excel) |
+| `/api/py/reports/financial/summary` | GET | Financial summary |
+| `/api/py/reports/hostel/occupancy` | GET | Hostel report |
+
+**Swagger Docs:** http://localhost:8000/api/py/docs
 
 ## 🏢 Core Features
 
@@ -97,76 +161,57 @@ This will start:
 - Student registration and enrollment
 - Document upload and verification
 - Application status tracking
-- Automated notifications
+- Interview scheduling
 
 ### 2. Fee Management
-- Configurable fee structures
-- Payment processing and tracking
+- Configurable fee structures by course/semester
+- Multiple payment method support
 - Receipt generation
 - Due date reminders
 
 ### 3. Hostel Management
 - Room allocation and management
-- Occupancy tracking
-- Maintenance requests
-- Integrated billing
+- Block-wise occupancy tracking
+- Multiple room types (Single, Double, Triple)
+- Check-in/Check-out tracking
 
-### 4. Reports & Analytics
+### 4. Reports & Analytics (Python API)
 - Student enrollment reports
-- Financial reports
+- Financial reports with Excel/CSV export
 - Hostel occupancy reports
-- Automated report generation
+- Predictive analytics
 
 ## 🛠️ Technology Stack
 
-### Backend
-- **Runtime**: Node.js
-- **Framework**: Express.js
-- **Database**: MongoDB with Mongoose
-- **Authentication**: JWT
-- **Validation**: Joi
-- **File Upload**: Multer
-- **Email**: Nodemailer
-
 ### Frontend
-- **Framework**: React 18
-- **Build Tool**: Vite
-- **Styling**: Tailwind CSS
-- **Routing**: React Router v6
-- **State Management**: React Query
-- **Forms**: React Hook Form
-- **Charts**: Recharts
+| Technology | Purpose |
+|------------|---------|
+| React 18 | UI Framework |
+| Vite | Build Tool |
+| Tailwind CSS | Styling |
+| Radix UI | Accessible Components |
+| Framer Motion | Animations |
+| React Query | Server State |
+| React Hook Form + Zod | Forms & Validation |
+| Recharts | Data Visualization |
 
-### DevOps & Automation
-- **Automation**: n8n workflows
-- **Process Management**: PM2 (production)
-- **Development**: Concurrently for multi-process development
+### Node.js Backend
+| Technology | Purpose |
+|------------|---------|
+| Express.js | Web Framework |
+| Mongoose | MongoDB ODM |
+| JWT | Authentication |
+| bcrypt | Password Hashing |
+| Joi | Validation |
 
-## 📚 Documentation
-
-- [Architecture Overview](docs/architecture.md)
-- [System Requirements](docs/requirements.md)
-- [API Documentation](docs/api.md) *(coming soon)*
-- [Deployment Guide](docs/deployment.md) *(coming soon)*
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+### Python Backend
+| Technology | Purpose |
+|------------|---------|
+| FastAPI | Web Framework |
+| Motor | Async MongoDB |
+| Pandas | Data Processing |
+| OpenPyXL | Excel Export |
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-For support and questions:
-- Create an issue in the repository
-- Contact the development team
-- Check the documentation in the `docs/` folder
-
----
-THis is currently being done nor completely done.
