@@ -1,354 +1,358 @@
-import React, { useState } from 'react';
-import { FileText, Download, Calendar, Filter, BarChart3, PieChart, TrendingUp, Users, DollarSign, Building, Server } from 'lucide-react';
-import { ServerManagementTable } from '../components/ui/ServerManagementTable';
+import { useState } from 'react'
+import { motion } from 'framer-motion'
+import { 
+  FileBarChart,
+  Download,
+  Calendar,
+  TrendingUp,
+  Users,
+  CreditCard,
+  Building2,
+  FileText,
+  Printer,
+  Mail,
+  RefreshCw,
+  ChevronDown,
+  Filter
+} from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle, GlassCard } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { cn, formatCurrency } from '@/lib/utils'
+import {
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from 'recharts'
 
-const Reports = () => {
-  const [selectedReport, setSelectedReport] = useState('overview');
-  const [dateRange, setDateRange] = useState('month');
+// Mock data
+const enrollmentTrend = [
+  { month: 'Sep', students: 2400 },
+  { month: 'Oct', students: 2520 },
+  { month: 'Nov', students: 2650 },
+  { month: 'Dec', students: 2700 },
+  { month: 'Jan', students: 2780 },
+  { month: 'Feb', students: 2847 },
+]
 
-  const reportTypes = [
-    {
-      id: 'overview',
-      title: 'Overview Report',
-      description: 'Comprehensive overview of all activities',
-      icon: BarChart3,
-      color: 'from-blue-500 to-blue-600'
-    },
-    {
-      id: 'admissions',
-      title: 'Admissions Report',
-      description: 'Student admissions and enrollment data',
-      icon: Users,
-      color: 'from-green-500 to-green-600'
-    },
-    {
-      id: 'fees',
-      title: 'Fee Collection Report',
-      description: 'Payment and fee collection analytics',
-      icon: DollarSign,
-      color: 'from-purple-500 to-purple-600'
-    },
-    {
-      id: 'hostel',
-      title: 'Hostel Report',
-      description: 'Room occupancy and hostel management',
-      icon: Building,
-      color: 'from-orange-500 to-orange-600'
-    }
-  ];
+const feeCollectionData = [
+  { month: 'Sep', collected: 2400000, pending: 600000 },
+  { month: 'Oct', collected: 2800000, pending: 400000 },
+  { month: 'Nov', collected: 3200000, pending: 350000 },
+  { month: 'Dec', collected: 2900000, pending: 500000 },
+  { month: 'Jan', collected: 3500000, pending: 300000 },
+  { month: 'Feb', collected: 2450000, pending: 800000 },
+]
 
-  const quickStats = [
-    {
-      title: 'Total Students',
-      value: '1,248',
-      change: '+12%',
-      trend: 'up',
-      icon: Users,
-      color: 'text-blue-400'
-    },
-    {
-      title: 'Fee Collection',
-      value: '₹2,45,000',
-      change: '+8%',
-      trend: 'up',
-      icon: DollarSign,
-      color: 'text-green-400'
-    },
-    {
-      title: 'Occupancy Rate',
-      value: '85%',
-      change: '+5%',
-      trend: 'up',
-      icon: Building,
-      color: 'text-purple-400'
-    },
-    {
-      title: 'New Admissions',
-      value: '156',
-      change: '+23%',
-      trend: 'up',
-      icon: TrendingUp,
-      color: 'text-orange-400'
-    }
-  ];
+const courseDistribution = [
+  { name: 'B.Tech', value: 1200, color: '#3b82f6' },
+  { name: 'M.Sc', value: 450, color: '#10b981' },
+  { name: 'MBA', value: 380, color: '#8b5cf6' },
+  { name: 'B.Com', value: 520, color: '#f59e0b' },
+  { name: 'Others', value: 297, color: '#6366f1' },
+]
 
-  const recentReports = [
-    {
-      id: 1,
-      name: 'Monthly Fee Collection Report',
-      type: 'Financial',
-      generatedDate: '2024-01-30',
-      status: 'completed',
-      size: '2.4 MB'
-    },
-    {
-      id: 2,
-      name: 'Student Enrollment Analysis',
-      type: 'Academic',
-      generatedDate: '2024-01-29',
-      status: 'completed',
-      size: '1.8 MB'
-    },
-    {
-      id: 3,
-      name: 'Hostel Occupancy Report',
-      type: 'Administrative',
-      generatedDate: '2024-01-28',
-      status: 'completed',
-      size: '1.2 MB'
-    },
-    {
-      id: 4,
-      name: 'Quarterly Performance Report',
-      type: 'Academic',
-      generatedDate: '2024-01-25',
-      status: 'processing',
-      size: 'Processing...'
-    }
-  ];
+const hostelOccupancy = [
+  { block: 'Block A', total: 100, occupied: 92 },
+  { block: 'Block B', total: 80, occupied: 75 },
+  { block: 'Block C', total: 60, occupied: 58 },
+  { block: 'Block D', total: 40, occupied: 35 },
+]
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'completed': return 'status-active';
-      case 'processing': return 'status-pending';
-      case 'failed': return 'status-inactive';
-      default: return 'status-pending';
-    }
-  };
+const reportTypes = [
+  { id: 'enrollment', name: 'Enrollment Report', icon: Users, description: 'Student enrollment statistics and trends' },
+  { id: 'financial', name: 'Financial Report', icon: CreditCard, description: 'Fee collection and payment analysis' },
+  { id: 'hostel', name: 'Hostel Report', icon: Building2, description: 'Room occupancy and allocation report' },
+  { id: 'academic', name: 'Academic Report', icon: FileBarChart, description: 'Course-wise performance analytics' },
+]
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.05 } }
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 }
+}
+
+export default function Reports() {
+  const [dateRange, setDateRange] = useState('this-month')
+  const [selectedReport, setSelectedReport] = useState('enrollment')
 
   return (
-    <div className="space-y-8">
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="space-y-6"
+    >
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 justify-between">
         <div>
-          <h1 className="text-4xl font-bold text-white mb-2">Reports & Analytics</h1>
-          <p className="text-slate-400 text-lg">Generate and analyze institutional reports</p>
+          <h1 className="text-2xl font-bold">Reports & Analytics</h1>
+          <p className="text-muted-foreground">Generate and analyze institution reports</p>
         </div>
-        <div className="flex gap-3">
-          <select 
-            value={dateRange} 
-            onChange={(e) => setDateRange(e.target.value)}
-            className="form-select"
-          >
-            <option value="week">This Week</option>
-            <option value="month">This Month</option>
-            <option value="quarter">This Quarter</option>
-            <option value="year">This Year</option>
-          </select>
-          <button className="btn btn-primary flex items-center gap-2">
-            <Download size={20} />
-            Export All
-          </button>
+        <div className="flex gap-2">
+          <Select value={dateRange} onValueChange={setDateRange}>
+            <SelectTrigger className="w-[160px]">
+              <Calendar className="w-4 h-4 mr-2" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="today">Today</SelectItem>
+              <SelectItem value="this-week">This Week</SelectItem>
+              <SelectItem value="this-month">This Month</SelectItem>
+              <SelectItem value="this-quarter">This Quarter</SelectItem>
+              <SelectItem value="this-year">This Year</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button variant="outline">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh
+          </Button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Quick Stats */}
-      <div className="dashboard-grid">
-        {quickStats.map((stat, index) => (
-          <div key={index} className="dashboard-stat-card">
-            <div className="flex items-start justify-between mb-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl flex items-center justify-center">
-                <stat.icon className={`w-8 h-8 ${stat.color}`} />
-              </div>
-              <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${
-                stat.trend === 'up' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'
-              }`}>
-                <TrendingUp size={16} />
-                {stat.change}
-              </div>
-            </div>
+      <motion.div variants={itemVariants} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <GlassCard className="p-5">
+          <div className="flex items-center justify-between">
             <div>
-              <p className="stat-number">{stat.value}</p>
-              <p className="stat-label">{stat.title}</p>
+              <p className="text-sm text-muted-foreground">Total Students</p>
+              <h3 className="text-2xl font-bold">2,847</h3>
+              <p className="text-xs text-emerald-400 mt-1">+12% from last month</p>
             </div>
+            <Users className="w-8 h-8 text-blue-400" />
           </div>
-        ))}
-      </div>
+        </GlassCard>
+        <GlassCard className="p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Fee Collected</p>
+              <h3 className="text-2xl font-bold">₹24.5L</h3>
+              <p className="text-xs text-emerald-400 mt-1">+8% from last month</p>
+            </div>
+            <CreditCard className="w-8 h-8 text-emerald-400" />
+          </div>
+        </GlassCard>
+        <GlassCard className="p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Hostel Occupancy</p>
+              <h3 className="text-2xl font-bold">94%</h3>
+              <p className="text-xs text-amber-400 mt-1">260/280 beds</p>
+            </div>
+            <Building2 className="w-8 h-8 text-violet-400" />
+          </div>
+        </GlassCard>
+        <GlassCard className="p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">New Admissions</p>
+              <h3 className="text-2xl font-bold">156</h3>
+              <p className="text-xs text-emerald-400 mt-1">+23% from last year</p>
+            </div>
+            <TrendingUp className="w-8 h-8 text-amber-400" />
+          </div>
+        </GlassCard>
+      </motion.div>
 
       {/* Report Types */}
-      <div className="erp-card">
-        <div className="card-header">
-          <h3 className="card-title flex items-center gap-3">
-            <FileText size={24} className="text-blue-400" />
-            Generate Reports
-          </h3>
+      <motion.div variants={itemVariants}>
+        <h2 className="text-lg font-semibold mb-4">Generate Reports</h2>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {reportTypes.map((report) => {
+            const Icon = report.icon
+            return (
+              <Card 
+                key={report.id}
+                className={cn(
+                  "p-5 cursor-pointer transition-all hover:border-primary/50",
+                  selectedReport === report.id && "border-primary bg-primary/5"
+                )}
+                onClick={() => setSelectedReport(report.id)}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Icon className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-sm">{report.name}</h3>
+                    <p className="text-xs text-muted-foreground mt-1">{report.description}</p>
+                  </div>
+                </div>
+                <div className="flex gap-2 mt-4">
+                  <Button variant="outline" size="sm" className="flex-1">
+                    <Printer className="w-3 h-3 mr-1" />
+                    Print
+                  </Button>
+                  <Button variant="outline" size="sm" className="flex-1">
+                    <Download className="w-3 h-3 mr-1" />
+                    PDF
+                  </Button>
+                </div>
+              </Card>
+            )
+          })}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {reportTypes.map((report) => (
-            <div 
-              key={report.id}
-              className={`p-6 rounded-xl border transition-all cursor-pointer ${
-                selectedReport === report.id
-                  ? 'border-blue-500 bg-blue-500/10'
-                  : 'border-slate-700 bg-slate-800/50 hover:border-slate-600'
-              }`}
-              onClick={() => setSelectedReport(report.id)}
-            >
-              <div className={`w-12 h-12 bg-gradient-to-br ${report.color} rounded-xl flex items-center justify-center mb-4`}>
-                <report.icon className="w-6 h-6 text-white" />
-              </div>
-              <h4 className="text-white font-semibold mb-2">{report.title}</h4>
-              <p className="text-slate-400 text-sm">{report.description}</p>
-            </div>
-          ))}
-        </div>
-      </div>
+      </motion.div>
 
-      {/* Report Generation Form */}
-      <div className="erp-card">
-        <div className="card-header">
-          <h3 className="card-title">Generate {reportTypes.find(r => r.id === selectedReport)?.title}</h3>
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="space-y-6">
-            <div className="form-group">
-              <label className="form-label">Date Range</label>
-              <div className="grid grid-cols-2 gap-4">
-                <input type="date" className="form-input" />
-                <input type="date" className="form-input" />
-              </div>
+      {/* Charts Section */}
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* Enrollment Trend */}
+        <motion.div variants={itemVariants}>
+          <Card className="p-6">
+            <CardTitle className="text-lg mb-6">Enrollment Trend</CardTitle>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={enrollmentTrend}>
+                  <defs>
+                    <linearGradient id="colorStudents" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                  <XAxis dataKey="month" stroke="#64748b" fontSize={12} />
+                  <YAxis stroke="#64748b" fontSize={12} />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(222.2 84% 4.9%)', 
+                      border: '1px solid hsl(217.2 32.6% 17.5%)',
+                      borderRadius: '0.75rem'
+                    }}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="students" 
+                    stroke="#3b82f6" 
+                    fillOpacity={1} 
+                    fill="url(#colorStudents)"
+                    strokeWidth={2}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
-            
-            <div className="form-group">
-              <label className="form-label">Report Format</label>
-              <select className="form-select">
-                <option value="pdf">PDF Document</option>
-                <option value="excel">Excel Spreadsheet</option>
-                <option value="csv">CSV File</option>
-                <option value="json">JSON Data</option>
-              </select>
-            </div>
-            
-            <div className="form-group">
-              <label className="form-label">Include Sections</label>
-              <div className="space-y-3">
-                {[
-                  'Summary Statistics',
-                  'Detailed Analytics',
-                  'Charts and Graphs',
-                  'Comparative Analysis',
-                  'Recommendations'
-                ].map((section) => (
-                  <label key={section} className="flex items-center gap-3">
-                    <input type="checkbox" defaultChecked className="rounded" />
-                    <span className="text-slate-300">{section}</span>
-                  </label>
+          </Card>
+        </motion.div>
+
+        {/* Course Distribution */}
+        <motion.div variants={itemVariants}>
+          <Card className="p-6">
+            <CardTitle className="text-lg mb-6">Students by Course</CardTitle>
+            <div className="h-[300px] flex">
+              <ResponsiveContainer width="60%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={courseDistribution}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={100}
+                    paddingAngle={3}
+                    dataKey="value"
+                  >
+                    {courseDistribution.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(222.2 84% 4.9%)', 
+                      border: '1px solid hsl(217.2 32.6% 17.5%)',
+                      borderRadius: '0.75rem'
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="flex-1 flex flex-col justify-center space-y-3">
+                {courseDistribution.map((item) => (
+                  <div key={item.name} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                      <span className="text-muted-foreground">{item.name}</span>
+                    </div>
+                    <span className="font-medium">{item.value}</span>
+                  </div>
                 ))}
               </div>
             </div>
-          </div>
-          
-          <div className="space-y-6">
-            <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
-              <h4 className="text-white font-semibold mb-4 flex items-center gap-2">
-                <PieChart size={20} className="text-blue-400" />
-                Report Preview
-              </h4>
-              <div className="space-y-4">
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Data Points:</span>
-                  <span className="text-white font-medium">1,248 records</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Time Period:</span>
-                  <span className="text-white font-medium">Last 30 days</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Estimated Size:</span>
-                  <span className="text-white font-medium">2.4 MB</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Generation Time:</span>
-                  <span className="text-white font-medium">~30 seconds</span>
-                </div>
-              </div>
+          </Card>
+        </motion.div>
+
+        {/* Fee Collection */}
+        <motion.div variants={itemVariants}>
+          <Card className="p-6">
+            <CardTitle className="text-lg mb-6">Fee Collection Analysis</CardTitle>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={feeCollectionData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                  <XAxis dataKey="month" stroke="#64748b" fontSize={12} />
+                  <YAxis stroke="#64748b" fontSize={12} tickFormatter={(value) => `₹${value/100000}L`} />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(222.2 84% 4.9%)', 
+                      border: '1px solid hsl(217.2 32.6% 17.5%)',
+                      borderRadius: '0.75rem'
+                    }}
+                    formatter={(value) => [formatCurrency(value), '']}
+                  />
+                  <Legend />
+                  <Bar dataKey="collected" name="Collected" fill="#10b981" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="pending" name="Pending" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
-            
-            <button className="btn btn-primary w-full flex items-center justify-center gap-2">
-              <FileText size={20} />
-              Generate Report
-            </button>
-          </div>
-        </div>
-      </div>
+          </Card>
+        </motion.div>
 
-      {/* Recent Reports */}
-      <div className="erp-card">
-        <div className="card-header">
-          <h3 className="card-title">Recent Reports</h3>
-        </div>
-        <div className="table-container">
-          <table className="table">
-            <thead className="table-header">
-              <tr>
-                <th>Report Name</th>
-                <th>Type</th>
-                <th>Generated Date</th>
-                <th>Status</th>
-                <th>Size</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentReports.map((report) => (
-                <tr key={report.id} className="table-row">
-                  <td className="table-cell">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                        <FileText size={18} className="text-white" />
-                      </div>
-                      <span className="font-medium text-white">{report.name}</span>
+        {/* Hostel Occupancy */}
+        <motion.div variants={itemVariants}>
+          <Card className="p-6">
+            <CardTitle className="text-lg mb-6">Hostel Occupancy by Block</CardTitle>
+            <div className="space-y-4">
+              {hostelOccupancy.map((block) => {
+                const percentage = Math.round((block.occupied / block.total) * 100)
+                return (
+                  <div key={block.block}>
+                    <div className="flex items-center justify-between text-sm mb-2">
+                      <span className="font-medium">{block.block}</span>
+                      <span className="text-muted-foreground">{block.occupied}/{block.total} beds</span>
                     </div>
-                  </td>
-                  <td className="table-cell">
-                    <span className="px-3 py-1 bg-slate-700 text-slate-300 rounded-lg text-sm">
-                      {report.type}
-                    </span>
-                  </td>
-                  <td className="table-cell">{report.generatedDate}</td>
-                  <td className="table-cell">
-                    <span className={`badge ${getStatusColor(report.status)}`}>
-                      {report.status}
-                    </span>
-                  </td>
-                  <td className="table-cell">{report.size}</td>
-                  <td className="table-cell">
-                    <div className="flex items-center gap-2">
-                      {report.status === 'completed' && (
-                        <button className="p-2 rounded-lg bg-slate-800/50 hover:bg-green-500/20 text-green-400 transition-colors">
-                          <Download size={16} />
-                        </button>
-                      )}
-                      <button className="p-2 rounded-lg bg-slate-800/50 hover:bg-blue-500/20 text-blue-400 transition-colors">
-                        <FileText size={16} />
-                      </button>
+                    <div className="relative">
+                      <Progress value={percentage} className="h-3" />
+                      <span className="absolute right-0 -top-6 text-xs font-medium">{percentage}%</span>
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </div>
+                )
+              })}
+            </div>
+          </Card>
+        </motion.div>
       </div>
-
-      {/* System Resources - Server Management */}
-      <div className="erp-card">
-        <div className="card-header mb-6">
-          <h3 className="card-title flex items-center gap-3">
-            <Server size={24} className="text-purple-400" />
-            System Resources Management
-          </h3>
-          <p className="text-slate-400 text-sm mt-2">Monitor and manage server infrastructure</p>
-        </div>
-        <ServerManagementTable 
-          title="ERP System Servers" 
-          onStatusChange={(serverId, newStatus) => {
-            console.log(`Server ${serverId} status changed to ${newStatus}`);
-          }}
-        />
-      </div>
-    </div>
-  );
-};
-
-export default Reports;
+    </motion.div>
+  )
+}
