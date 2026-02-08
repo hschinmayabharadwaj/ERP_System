@@ -1,254 +1,335 @@
-import React, { useState } from 'react';
-import { UserPlus, Search, Filter, MoreVertical, Eye, Edit, Trash2, Download } from 'lucide-react';
+import { useState } from 'react'
+import { motion } from 'framer-motion'
+import { 
+  Search, 
+  Plus, 
+  Filter, 
+  UserPlus,
+  Eye,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  FileText,
+  ChevronDown,
+  Calendar,
+  Mail,
+  Phone
+} from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle, GlassCard } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Progress } from '@/components/ui/progress'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
+import { cn, formatDate, getInitials } from '@/lib/utils'
 
-const Admissions = () => {
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
+// Mock admission applications
+const applications = [
+  {
+    id: 'APP001',
+    name: 'Arun Kumar',
+    email: 'arun.kumar@email.com',
+    phone: '+91 98765 11111',
+    course: 'B.Tech CSE',
+    appliedDate: '2026-02-01',
+    status: 'pending',
+    documents: ['ID Proof', '10th Marksheet', '12th Marksheet'],
+    score: 85
+  },
+  {
+    id: 'APP002',
+    name: 'Meera Reddy',
+    email: 'meera.reddy@email.com',
+    phone: '+91 98765 22222',
+    course: 'M.Sc Physics',
+    appliedDate: '2026-02-03',
+    status: 'reviewing',
+    documents: ['ID Proof', 'Degree Certificate', 'Experience Letter'],
+    score: 78
+  },
+  {
+    id: 'APP003',
+    name: 'Karthik Nair',
+    email: 'karthik.nair@email.com',
+    phone: '+91 98765 33333',
+    course: 'MBA',
+    appliedDate: '2026-02-05',
+    status: 'approved',
+    documents: ['ID Proof', 'Degree Certificate', 'Work Experience'],
+    score: 92
+  },
+  {
+    id: 'APP004',
+    name: 'Divya Sharma',
+    email: 'divya.sharma@email.com',
+    phone: '+91 98765 44444',
+    course: 'B.Com',
+    appliedDate: '2026-02-06',
+    status: 'rejected',
+    documents: ['ID Proof', '10th Marksheet'],
+    score: 45
+  },
+  {
+    id: 'APP005',
+    name: 'Rohit Singh',
+    email: 'rohit.singh@email.com',
+    phone: '+91 98765 55555',
+    course: 'B.Tech ECE',
+    appliedDate: '2026-02-07',
+    status: 'pending',
+    documents: ['ID Proof', '10th Marksheet', '12th Marksheet', 'JEE Score'],
+    score: 88
+  },
+]
 
-  const admissions = [
-    {
-      id: 1,
-      name: 'John Doe',
-      email: 'john.doe@email.com',
-      course: 'Computer Science',
-      applicationDate: '2024-01-15',
-      status: 'approved',
-      phone: '+1 234 567 8900'
-    },
-    {
-      id: 2,
-      name: 'Jane Smith',
-      email: 'jane.smith@email.com',
-      course: 'Business Administration',
-      applicationDate: '2024-01-14',
-      status: 'pending',
-      phone: '+1 234 567 8901'
-    },
-    {
-      id: 3,
-      name: 'Mike Johnson',
-      email: 'mike.johnson@email.com',
-      course: 'Engineering',
-      applicationDate: '2024-01-13',
-      status: 'review',
-      phone: '+1 234 567 8902'
-    },
-    {
-      id: 4,
-      name: 'Sarah Wilson',
-      email: 'sarah.wilson@email.com',
-      course: 'Medicine',
-      applicationDate: '2024-01-12',
-      status: 'approved',
-      phone: '+1 234 567 8903'
-    }
-  ];
+const statusConfig = {
+  pending: { label: 'Pending', color: 'bg-amber-500/20 text-amber-400 border-amber-500/30', icon: Clock },
+  reviewing: { label: 'Reviewing', color: 'bg-blue-500/20 text-blue-400 border-blue-500/30', icon: Eye },
+  approved: { label: 'Approved', color: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30', icon: CheckCircle2 },
+  rejected: { label: 'Rejected', color: 'bg-rose-500/20 text-rose-400 border-rose-500/30', icon: XCircle },
+}
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'approved': return 'status-active';
-      case 'pending': return 'status-pending';
-      case 'review': return 'status-inactive';
-      default: return 'status-pending';
-    }
-  };
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.05 }
+  }
+}
 
-  const filteredAdmissions = admissions.filter(admission => {
-    const matchesSearch = admission.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         admission.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         admission.course.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterStatus === 'all' || admission.status === filterStatus;
-    return matchesSearch && matchesFilter;
-  });
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 }
+}
+
+export default function Admissions() {
+  const [searchQuery, setSearchQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [isNewAppOpen, setIsNewAppOpen] = useState(false)
+
+  const filteredApplications = applications.filter(app => {
+    const matchesSearch = app.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          app.email.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesStatus = statusFilter === 'all' || app.status === statusFilter
+    return matchesSearch && matchesStatus
+  })
+
+  const stats = {
+    total: applications.length,
+    pending: applications.filter(a => a.status === 'pending').length,
+    approved: applications.filter(a => a.status === 'approved').length,
+    rejected: applications.filter(a => a.status === 'rejected').length,
+  }
 
   return (
-    <div className="space-y-8">
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="space-y-6"
+    >
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 justify-between">
         <div>
-          <h1 className="text-4xl font-bold text-white mb-2">Admissions Management</h1>
-          <p className="text-slate-400 text-lg">Manage student applications and admissions process</p>
+          <h1 className="text-2xl font-bold">Admissions</h1>
+          <p className="text-muted-foreground">Manage student admission applications</p>
         </div>
-        <button 
-          onClick={() => setIsFormOpen(true)}
-          className="btn btn-primary flex items-center gap-2"
-        >
-          <UserPlus size={20} />
-          Add New Application
-        </button>
-      </div>
-
-      {/* Filters and Search */}
-      <div className="erp-card">
-        <div className="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
-          <div className="flex flex-col sm:flex-row gap-4 flex-1">
-            <div className="relative flex-1 max-w-md">
-              <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search students..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="form-input pl-10"
-              />
+        <Dialog open={isNewAppOpen} onOpenChange={setIsNewAppOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <UserPlus className="w-4 h-4 mr-2" />
+              New Application
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>New Admission Application</DialogTitle>
+              <DialogDescription>
+                Fill in the details to create a new admission application.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Full Name</Label>
+                <Input placeholder="Enter student name" />
+              </div>
+              <div className="space-y-2">
+                <Label>Email</Label>
+                <Input type="email" placeholder="email@example.com" />
+              </div>
+              <div className="space-y-2">
+                <Label>Phone</Label>
+                <Input placeholder="+91 XXXXX XXXXX" />
+              </div>
+              <div className="space-y-2">
+                <Label>Course</Label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select course" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="btech-cse">B.Tech CSE</SelectItem>
+                    <SelectItem value="btech-ece">B.Tech ECE</SelectItem>
+                    <SelectItem value="msc-physics">M.Sc Physics</SelectItem>
+                    <SelectItem value="mba">MBA</SelectItem>
+                    <SelectItem value="bcom">B.Com</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Filter size={20} className="text-slate-400" />
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="form-select"
-              >
-                <option value="all">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="review">Under Review</option>
-                <option value="approved">Approved</option>
-              </select>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <button className="btn btn-secondary flex items-center gap-2">
-              <Download size={18} />
-              Export
-            </button>
-          </div>
-        </div>
-      </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsNewAppOpen(false)}>Cancel</Button>
+              <Button onClick={() => setIsNewAppOpen(false)}>Create Application</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </motion.div>
 
-      {/* Applications Table */}
-      <div className="erp-card">
-        <div className="card-header">
-          <h3 className="card-title">Student Applications ({filteredAdmissions.length})</h3>
-        </div>
-        <div className="table-container">
-          <table className="table">
-            <thead className="table-header">
-              <tr>
-                <th>Student</th>
-                <th>Course</th>
-                <th>Application Date</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredAdmissions.map((admission) => (
-                <tr key={admission.id} className="table-row">
-                  <td className="table-cell">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                        <span className="text-white font-medium">{admission.name.charAt(0)}</span>
-                      </div>
-                      <div>
-                        <p className="font-medium text-white">{admission.name}</p>
-                        <p className="text-sm text-slate-400">{admission.email}</p>
-                        <p className="text-xs text-slate-500">{admission.phone}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="table-cell">
-                    <span className="font-medium">{admission.course}</span>
-                  </td>
-                  <td className="table-cell">{admission.applicationDate}</td>
-                  <td className="table-cell">
-                    <span className={`badge ${getStatusColor(admission.status)}`}>
-                      {admission.status}
-                    </span>
-                  </td>
-                  <td className="table-cell">
-                    <div className="flex items-center gap-2">
-                      <button className="p-2 rounded-lg bg-slate-800/50 hover:bg-blue-500/20 text-blue-400 transition-colors">
-                        <Eye size={16} />
-                      </button>
-                      <button className="p-2 rounded-lg bg-slate-800/50 hover:bg-green-500/20 text-green-400 transition-colors">
-                        <Edit size={16} />
-                      </button>
-                      <button className="p-2 rounded-lg bg-slate-800/50 hover:bg-red-500/20 text-red-400 transition-colors">
-                        <Trash2 size={16} />
-                      </button>
-                      <button className="p-2 rounded-lg bg-slate-800/50 hover:bg-slate-700 text-slate-400 transition-colors">
-                        <MoreVertical size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {/* Stats Cards */}
+      <motion.div variants={itemVariants} className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <GlassCard className="p-4">
+          <div className="text-sm text-muted-foreground">Total Applications</div>
+          <div className="text-3xl font-bold mt-1">{stats.total}</div>
+          <div className="text-xs text-muted-foreground mt-1">This month</div>
+        </GlassCard>
+        <GlassCard className="p-4">
+          <div className="text-sm text-muted-foreground">Pending Review</div>
+          <div className="text-3xl font-bold mt-1 text-amber-400">{stats.pending}</div>
+          <Progress value={(stats.pending / stats.total) * 100} className="mt-2 h-1" />
+        </GlassCard>
+        <GlassCard className="p-4">
+          <div className="text-sm text-muted-foreground">Approved</div>
+          <div className="text-3xl font-bold mt-1 text-emerald-400">{stats.approved}</div>
+          <Progress value={(stats.approved / stats.total) * 100} className="mt-2 h-1" />
+        </GlassCard>
+        <GlassCard className="p-4">
+          <div className="text-sm text-muted-foreground">Rejected</div>
+          <div className="text-3xl font-bold mt-1 text-rose-400">{stats.rejected}</div>
+          <Progress value={(stats.rejected / stats.total) * 100} className="mt-2 h-1" />
+        </GlassCard>
+      </motion.div>
 
-      {/* Add Application Modal */}
-      {isFormOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-slate-700">
-              <h2 className="text-2xl font-bold text-white">New Application</h2>
-              <p className="text-slate-400 mt-1">Add a new student application</p>
-            </div>
-            <div className="p-6">
-              <form className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="form-group">
-                    <label className="form-label">Full Name</label>
-                    <input type="text" className="form-input" placeholder="Enter full name" />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Email Address</label>
-                    <input type="email" className="form-input" placeholder="Enter email address" />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Phone Number</label>
-                    <input type="tel" className="form-input" placeholder="Enter phone number" />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Course</label>
-                    <select className="form-select">
-                      <option value="">Select a course</option>
-                      <option value="computer-science">Computer Science</option>
-                      <option value="business">Business Administration</option>
-                      <option value="engineering">Engineering</option>
-                      <option value="medicine">Medicine</option>
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Date of Birth</label>
-                    <input type="date" className="form-input" />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Gender</label>
-                    <select className="form-select">
-                      <option value="">Select gender</option>
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                      <option value="other">Other</option>
-                    </select>
+      {/* Filters */}
+      <motion.div variants={itemVariants} className="flex gap-4">
+        <div className="relative flex-1 max-w-md">
+          <Input
+            placeholder="Search applications..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            icon={Search}
+            className="pl-10"
+          />
+        </div>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-[160px]">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="reviewing">Reviewing</SelectItem>
+            <SelectItem value="approved">Approved</SelectItem>
+            <SelectItem value="rejected">Rejected</SelectItem>
+          </SelectContent>
+        </Select>
+      </motion.div>
+
+      {/* Applications Grid */}
+      <motion.div variants={itemVariants} className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filteredApplications.map((app) => {
+          const StatusIcon = statusConfig[app.status].icon
+          return (
+            <Card key={app.id} className="p-6 hover:border-primary/50 transition-colors group">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <Avatar className="w-12 h-12">
+                    <AvatarFallback>{getInitials(app.name)}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h3 className="font-semibold">{app.name}</h3>
+                    <p className="text-sm text-muted-foreground">{app.course}</p>
                   </div>
                 </div>
-                <div className="form-group">
-                  <label className="form-label">Address</label>
-                  <textarea className="form-textarea" rows={3} placeholder="Enter full address"></textarea>
+                <Badge className={statusConfig[app.status].color}>
+                  <StatusIcon className="w-3 h-3 mr-1" />
+                  {statusConfig[app.status].label}
+                </Badge>
+              </div>
+
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Mail className="w-4 h-4" />
+                  {app.email}
                 </div>
-                <div className="flex gap-4 pt-4">
-                  <button type="submit" className="btn btn-primary flex-1">
-                    Create Application
-                  </button>
-                  <button 
-                    type="button" 
-                    onClick={() => setIsFormOpen(false)}
-                    className="btn btn-secondary flex-1"
-                  >
-                    Cancel
-                  </button>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Phone className="w-4 h-4" />
+                  {app.phone}
                 </div>
-              </form>
-            </div>
-          </div>
-        </div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Calendar className="w-4 h-4" />
+                  Applied: {formatDate(app.appliedDate)}
+                </div>
+              </div>
+
+              <div className="mt-4 pt-4 border-t border-border">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Documents</span>
+                  <span className="font-medium">{app.documents.length} uploaded</span>
+                </div>
+                <div className="flex items-center justify-between text-sm mt-2">
+                  <span className="text-muted-foreground">Score</span>
+                  <span className={cn(
+                    "font-bold",
+                    app.score >= 80 ? "text-emerald-400" : app.score >= 60 ? "text-amber-400" : "text-rose-400"
+                  )}>
+                    {app.score}%
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-4 flex gap-2">
+                <Button variant="outline" size="sm" className="flex-1">
+                  <Eye className="w-4 h-4 mr-1" />
+                  View
+                </Button>
+                {app.status === 'pending' && (
+                  <>
+                    <Button variant="default" size="sm" className="flex-1">
+                      <CheckCircle2 className="w-4 h-4 mr-1" />
+                      Approve
+                    </Button>
+                  </>
+                )}
+              </div>
+            </Card>
+          )
+        })}
+      </motion.div>
+
+      {filteredApplications.length === 0 && (
+        <Card className="p-12 text-center">
+          <FileText className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+          <h3 className="text-lg font-semibold mb-2">No applications found</h3>
+          <p className="text-muted-foreground">Try adjusting your search or filter criteria</p>
+        </Card>
       )}
-    </div>
-  );
-};
-
-export default Admissions;
+    </motion.div>
+  )
+}
