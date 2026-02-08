@@ -1,0 +1,10 @@
+// Export all services
+export { default as api, setTokens, clearTokens, getAccessToken } from './api'
+export { default as authService } from './auth'
+export { default as studentsService } from './students'
+export { default as feesService } from './fees'
+export { default as paymentsService } from './payments'
+export { default as hostelService } from './hostel'
+export { default as admissionsService } from './admissions'
+export { default as dashboardService } from './dashboard'
+export { default as analyticsService } from './analytics'
