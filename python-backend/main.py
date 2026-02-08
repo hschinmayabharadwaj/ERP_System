@@ -44,16 +44,37 @@ app.add_middleware(
 # MongoDB Connection
 @app.on_event("startup")
 async def startup_db():
+    """
+    Initialize and attach the MongoDB client and database to the FastAPI app.
+    
+    Sets `app.mongodb_client` to a connected AsyncIOMotorClient and `app.mongodb` to the configured database from `settings`.
+    """
     app.mongodb_client = AsyncIOMotorClient(settings.mongodb_uri)
     app.mongodb = app.mongodb_client[settings.database_name]
     print("✅ Connected to MongoDB from Python backend")
 
 @app.on_event("shutdown")
 async def shutdown_db():
+    """
+    Close the application's MongoDB client connection during application shutdown.
+    
+    This function closes the motor AsyncIOMotorClient stored on the FastAPI app instance to release network resources and connections.
+    """
     app.mongodb_client.close()
 
 # Helper function to serialize MongoDB documents
 def serialize_doc(doc):
+    """
+    Recursively convert a MongoDB/BSON value into JSON-serializable Python primitives.
+    
+    Converts ObjectId instances to their string representation, datetime objects to ISO 8601 strings, preserves None, and recursively processes lists and dicts so nested MongoDB documents become JSON-serializable. Other types are returned unchanged.
+    
+    Parameters:
+        doc: A MongoDB/BSON value or document (scalar, dict, list, ObjectId, datetime, or None).
+    
+    Returns:
+        The input value transformed into JSON-serializable types (or `None` if input is `None`).
+    """
     if doc is None:
         return None
     if isinstance(doc, list):
@@ -70,6 +91,15 @@ def serialize_doc(doc):
 
 @app.get("/api/py/health")
 async def health_check():
+    """
+    Return a basic health payload for the ERP Analytics API.
+    
+    Returns:
+        dict: Health information containing:
+            - status (str): Service status, typically "ok".
+            - service (str): Human-readable service name.
+            - timestamp (str): ISO 8601 timestamp of the check.
+    """
     return {
         "status": "ok",
         "service": "ERP Analytics API (Python)",
@@ -80,7 +110,18 @@ async def health_check():
 
 @app.get("/api/py/analytics/overview")
 async def get_analytics_overview():
-    """Get comprehensive analytics overview"""
+    """
+    Aggregates analytics across students, fees, hostel, and admissions and returns a structured overview.
+    
+    Returns:
+        dict: An object with keys:
+            - students: { "total": int, "active": int, "courseDistribution": list } — overall student counts and active-course distribution.
+            - fees: { "totalAmount": number, "collectedAmount": number, "pendingAmount": number } — aggregated fee amounts.
+            - hostel: { "totalCapacity": number, "currentOccupancy": number } — aggregated hostel capacity and occupancy.
+            - admissions: list — counts grouped by admission status.
+    Raises:
+        HTTPException: with status_code 500 when an unexpected error occurs while querying the database.
+    """
     try:
         db = app.mongodb
         
@@ -145,7 +186,22 @@ async def get_trends(
     period: str = Query("6m", description="Period: 3m, 6m, 12m, all"),
     metric: str = Query("all", description="Metric: students, fees, admissions, all")
 ):
-    """Get trend data for various metrics"""
+    """
+    Provide time-series trend data for students, fee collections, and admissions.
+    
+    Parameters:
+        period (str): Time window for the trends; accepted values are "3m", "6m", "12m", or "all".
+        metric (str): Which metric to include; accepted values are "students", "fees", "admissions", or "all".
+    
+    Returns:
+        dict: A mapping with any of the following keys:
+            - "studentTrend": list of documents grouping student counts by year and month, each item contains `_id` (`year`, `month`) and `count`.
+            - "feeTrend": list of documents grouping completed payment totals by year and month, each item contains `_id` (`year`, `month`) and `total`.
+            - "admissionTrend": list of documents grouping admissions by year, month, and status, each item contains `_id` (`year`, `month`, `status`) and `count`.
+    
+    Raises:
+        HTTPException: With status code 500 if an unexpected error occurs while computing trends.
+    """
     try:
         db = app.mongodb
         
@@ -214,7 +270,28 @@ async def get_trends(
 
 @app.get("/api/py/analytics/predictions")
 async def get_predictions():
-    """Get simple predictions based on historical data"""
+    """
+    Compute simple next-month predictions for student enrollment and fee collection using the last six months of historical data.
+    
+    Aggregates monthly counts of student registrations and monthly totals of completed payments, computes average month-over-month growth for each series, and projects the next month's value using a linear (average-difference) approach. Trends are labeled "up", "down", or "stable".
+    
+    Returns:
+        dict: {
+            "enrollment": {
+                "nextMonthPrediction": int,  # predicted enrollment for next month (rounded, non-negative)
+                "averageGrowth": float,      # average month-over-month change (rounded to 2 decimals)
+                "trend": str                 # "up", "down", or "stable"
+            },
+            "feeCollection": {
+                "nextMonthPrediction": int,  # predicted fee collection for next month (rounded, non-negative)
+                "averageGrowth": float,      # average month-over-month change (rounded to 2 decimals)
+                "trend": str                 # "up", "down", or "stable"
+            }
+        }
+    
+    Raises:
+        HTTPException: with status code 500 when an unexpected error occurs while querying or processing data.
+    """
     try:
         db = app.mongodb
         
@@ -286,7 +363,21 @@ async def export_students(
     status: Optional[str] = None,
     course: Optional[str] = None
 ):
-    """Export student data to CSV or Excel"""
+    """
+    Export student records filtered by optional status and course into a CSV or Excel file and return it as a streaming response.
+    
+    Parameters:
+        format (str): Export format, either `"csv"` or `"excel"`.
+        status (Optional[str]): If provided, include only students whose `academicInfo.status` matches this value.
+        course (Optional[str]): If provided, include only students whose `academicInfo.course` matches this value.
+    
+    Returns:
+        StreamingResponse: A streaming response containing the exported file. The response's Content-Disposition filename uses the pattern `students_YYYYMMDD.csv` or `.xlsx` depending on the format.
+    
+    Raises:
+        HTTPException: 404 if no students match the query.
+        HTTPException: 500 for unexpected server errors encountered during export.
+    """
     try:
         db = app.mongodb
         
@@ -349,7 +440,21 @@ async def export_fees(
     status: Optional[str] = None,
     academic_year: Optional[str] = None
 ):
-    """Export fee data to CSV or Excel"""
+    """
+    Export fee records filtered by status and/or academic year as a CSV or Excel file.
+    
+    Parameters:
+        format (str): Export format, either "csv" or "excel".
+        status (Optional[str]): Optional fee status to filter by (e.g., "pending", "paid").
+        academic_year (Optional[str]): Optional academic year to filter records (e.g., "2024-2025").
+    
+    Returns:
+        StreamingResponse: A streaming file response containing the exported data. The response content is a CSV when `format` is "csv" and an Excel workbook when `format` is "excel". The filename is `fees_YYYYMMDD.csv` or `fees_YYYYMMDD.xlsx`.
+    
+    Raises:
+        HTTPException(404): If no fee records match the provided filters.
+        HTTPException(500): On unexpected errors during query, transformation, or file generation.
+    """
     try:
         db = app.mongodb
         
@@ -427,7 +532,18 @@ async def export_payments(
     end_date: Optional[str] = None,
     payment_method: Optional[str] = None
 ):
-    """Export payment data to CSV or Excel"""
+    """
+    Export completed payments as a downloadable CSV or Excel file, optionally filtered by date range and payment method.
+    
+    Parameters:
+        format (str): Export format, either "csv" or "excel". Defaults to "csv".
+        start_date (Optional[str]): Inclusive start date in ISO format (e.g., "2023-01-01" or full ISO timestamp). If provided, payments on or after this date are included.
+        end_date (Optional[str]): Inclusive end date in ISO format. If provided, payments on or before this date are included.
+        payment_method (Optional[str]): Filter payments by payment method (e.g., "card", "cash").
+    
+    Returns:
+        StreamingResponse: A streaming file response containing the exported payments. For CSV the response has media type "text/csv" and for Excel "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet". The filename is "payments_YYYYMMDD.csv" or ".xlsx" using the current date.
+    """
     try:
         db = app.mongodb
         
@@ -503,7 +619,24 @@ async def export_payments(
 
 @app.get("/api/py/reports/hostel/occupancy")
 async def get_hostel_occupancy_report():
-    """Get detailed hostel occupancy report"""
+    """
+    Produce a detailed hostel occupancy report.
+    
+    The returned report includes overall occupancy rate, total capacity and current occupancy, plus block-wise, room-type, and status distributions.
+    
+    Returns:
+        dict: {
+            "overallOccupancyRate": float,  # occupancy percentage rounded to two decimals
+            "totalCapacity": int,           # sum of all room capacities
+            "currentOccupancy": int,        # sum of all current occupancies
+            "blockWiseStats": list,         # per-block objects with totalRooms, totalCapacity, currentOccupancy, available
+            "roomTypeStats": list,          # per-roomType objects with count, totalCapacity, occupied
+            "statusDistribution": list      # per-status objects with count
+        }
+    
+    Raises:
+        HTTPException: If database aggregation or retrieval fails; the exception detail contains the original error message.
+    """
     try:
         db = app.mongodb
         
@@ -567,7 +700,23 @@ async def get_hostel_occupancy_report():
 async def get_financial_summary(
     academic_year: Optional[str] = None
 ):
-    """Get comprehensive financial summary"""
+    """
+    Return a consolidated financial summary for the institution, optionally filtered by academic year.
+    
+    Parameters:
+        academic_year (str | None): If provided, restricts fee aggregates to documents where `academicYear` equals this value.
+    
+    Returns:
+        dict: A report containing:
+            - summary (dict): Aggregated fee totals with keys `totalDue`, `totalCollected`, and `totalPending`.
+            - paymentMethodBreakdown (list): Array of objects grouped by payment method with keys `_id` (payment method), `total` (sum), and `count` (number of payments).
+            - monthlyCollection (list): Array of objects for the current year grouped by month with keys `_id` (month number 1-12) and `total` (sum collected that month).
+            - overdueCount (int): Number of fee records with status `pending` or `partial` whose `dueDate` is before today.
+            - collectionRate (float): Percentage (0-100) of `totalCollected` over `totalDue`, rounded to two decimals.
+    
+    Raises:
+        HTTPException: With status code 500 if an unexpected error occurs while computing the summary.
+    """
     try:
         db = app.mongodb
         

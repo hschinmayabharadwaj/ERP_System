@@ -25,6 +25,14 @@ const randomItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 const randomDate = (start, end) => new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
 
+/**
+ * Populate the database with initial ERP data.
+ *
+ * Establishes a MongoDB connection, clears existing documents from User, Student,
+ * Admission, Fee, Payment, Room, and HostelBlock collections, and inserts seed data:
+ * an admin and staff users, hostel blocks and rooms, students, admission applications,
+ * fee records, and corresponding payment records. Disconnects from MongoDB on completion.
+ */
 async function seed() {
   try {
     await mongoose.connect(MONGO_URI);

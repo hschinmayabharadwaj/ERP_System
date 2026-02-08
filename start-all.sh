@@ -15,7 +15,7 @@ NC='\033[0m' # No Color
 # Get the directory where the script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# Function to check if a port is in use
+# check_port checks whether the TCP port given as $1 is in LISTEN state and returns 0 if the port is in use, 1 otherwise.
 check_port() {
     if lsof -Pi :$1 -sTCP:LISTEN -t >/dev/null ; then
         return 0
