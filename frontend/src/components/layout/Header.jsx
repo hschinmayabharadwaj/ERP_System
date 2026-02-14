@@ -27,6 +27,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/context/AuthContext'
 
 const pageTitles = {
   '/': 'Dashboard',
@@ -43,6 +44,7 @@ export default function Header() {
   const location = useLocation()
   const navigate = useNavigate()
   const [searchOpen, setSearchOpen] = useState(false)
+  const { user, logout } = useAuth()
   
   const currentPage = pageTitles[location.pathname] || 'Page'
 
@@ -53,6 +55,19 @@ export default function Header() {
   ]
 
   const unreadCount = notifications.filter(n => n.unread).length
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login')
+  }
+
+  // Get user initials for avatar fallback
+  const getInitials = () => {
+    if (!user) return 'U'
+    const first = user.firstName?.[0] || user.name?.[0] || ''
+    const last = user.lastName?.[0] || ''
+    return (first + last).toUpperCase() || 'U'
+  }
 
   return (
     <header className="h-16 flex items-center justify-between px-6 border-b border-border bg-card/50 backdrop-blur-xl">
@@ -143,18 +158,27 @@ export default function Header() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex items-center gap-2 px-2">
               <Avatar className="w-8 h-8">
-                <AvatarImage src="/avatar.jpg" alt="Admin" />
-                <AvatarFallback>AD</AvatarFallback>
+                <AvatarImage src={user?.picture || "/avatar.jpg"} alt={user?.name || "User"} />
+                <AvatarFallback>{getInitials()}</AvatarFallback>
               </Avatar>
               <div className="hidden lg:block text-left">
-                <p className="text-sm font-medium">Admin User</p>
-                <p className="text-xs text-muted-foreground">Administrator</p>
+                <p className="text-sm font-medium">{user?.name || user?.firstName || 'User'}</p>
+                <p className="text-xs text-muted-foreground">{user?.email || 'Administrator'}</p>
               </div>
               <ChevronDown className="w-4 h-4 text-muted-foreground hidden lg:block" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuLabel className="flex items-center gap-3">
+              <Avatar className="w-10 h-10">
+                <AvatarImage src={user?.picture} alt={user?.name} />
+                <AvatarFallback>{getInitials()}</AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="font-medium">{user?.name || user?.firstName}</p>
+                <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+              </div>
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => navigate('/settings')}>
               <User className="w-4 h-4 mr-2" />
@@ -165,7 +189,7 @@ export default function Header() {
               Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-red-400 focus:text-red-400">
+            <DropdownMenuItem className="text-red-400 focus:text-red-400" onClick={handleLogout}>
               <LogOut className="w-4 h-4 mr-2" />
               Log out
             </DropdownMenuItem>

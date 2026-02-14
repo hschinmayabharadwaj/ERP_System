@@ -1,7 +1,8 @@
 import { lazy, Suspense } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/layout/Layout'
 import LoadingScreen from './components/ui/loading-screen'
+import { useAuth } from './context/AuthContext'
 
 // Lazy load pages for better performance
 const Dashboard = lazy(() => import('./pages/Dashboard'))
@@ -16,12 +17,50 @@ const Settings = lazy(() => import('./pages/Settings'))
 const Login = lazy(() => import('./pages/Login'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
+// Protected Route component
+function ProtectedRoute({ children }) {
+  const { isAuthenticated, isLoading } = useAuth()
+  
+  if (isLoading) {
+    return <LoadingScreen />
+  }
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />
+  }
+  
+  return children
+}
+
+// Public Route component (redirect to dashboard if already authenticated)
+function PublicRoute({ children }) {
+  const { isAuthenticated, isLoading } = useAuth()
+  
+  if (isLoading) {
+    return <LoadingScreen />
+  }
+  
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />
+  }
+  
+  return children
+}
+
 function App() {
   return (
     <Suspense fallback={<LoadingScreen />}>
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Layout />}>
+        <Route path="/login" element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        } />
+        <Route path="/" element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }>
           <Route index element={<Dashboard />} />
           <Route path="students" element={<Students />} />
           <Route path="students/:id" element={<StudentDetail />} />
