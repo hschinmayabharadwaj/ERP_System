@@ -158,4 +158,63 @@ router.put('/change-password', authenticate, async (req, res) => {
   }
 });
 
+// Google OAuth Sign-In
+router.post('/google', async (req, res) => {
+  try {
+    const { credential, userData } = req.body;
+
+    if (!credential || !userData) {
+      return res.status(400).json({ error: 'Missing credential or user data' });
+    }
+
+    // Check if user exists with this email
+    let user = await User.findOne({ email: userData.email });
+
+    if (user) {
+      // Update existing user's Google info
+      user.googleId = userData.id;
+      user.firstName = userData.firstName || user.firstName;
+      user.lastName = userData.lastName || user.lastName;
+      user.avatar = userData.picture || user.avatar;
+      user.lastLogin = new Date();
+    } else {
+      // Create new user from Google data
+      user = new User({
+        email: userData.email,
+        googleId: userData.id,
+        firstName: userData.firstName || userData.name?.split(' ')[0] || 'User',
+        lastName: userData.lastName || userData.name?.split(' ').slice(1).join(' ') || '',
+        avatar: userData.picture,
+        role: 'staff', // Default role for Google sign-in users
+        isActive: true,
+        emailVerified: userData.emailVerified || true,
+        authProvider: 'google',
+        lastLogin: new Date()
+      });
+    }
+
+    // Generate tokens
+    const { accessToken, refreshToken } = generateTokens(user._id);
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    res.json({
+      message: 'Google sign-in successful',
+      user: {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        avatar: user.avatar
+      },
+      accessToken,
+      refreshToken
+    });
+  } catch (error) {
+    console.error('Google auth error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

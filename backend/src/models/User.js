@@ -11,8 +11,21 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true,
+    required: function() {
+      // Password only required if not using Google auth
+      return this.authProvider !== 'google';
+    },
     minlength: 6
+  },
+  googleId: {
+    type: String,
+    sparse: true,
+    unique: true
+  },
+  authProvider: {
+    type: String,
+    enum: ['local', 'google'],
+    default: 'local'
   },
   firstName: {
     type: String,
@@ -21,8 +34,8 @@ const userSchema = new mongoose.Schema({
   },
   lastName: {
     type: String,
-    required: true,
-    trim: true
+    trim: true,
+    default: ''
   },
   role: {
     type: String,
@@ -36,6 +49,10 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
     default: null
+  },
+  emailVerified: {
+    type: Boolean,
+    default: false
   },
   isActive: {
     type: Boolean,
