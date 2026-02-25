@@ -12,7 +12,10 @@ import {
   Calendar,
   Clock,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Zap,
+  Award,
+  Target
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, GlassCard } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -36,6 +39,63 @@ import {
   Pie,
   Cell
 } from 'recharts'
+
+// Animated stat card component
+const StatCard = ({ stat, index }) => {
+  const Icon = stat.icon
+  const isPositive = stat.trend === 'up'
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
+      whileHover={{ y: -5, boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)' }}
+    >
+      <div className={cn(
+        "relative overflow-hidden rounded-2xl p-6",
+        "bg-gradient-to-br backdrop-blur-xl",
+        `${stat.color} bg-opacity-10`,
+        "border border-white/20",
+        "hover:border-white/40 transition-all duration-300"
+      )}>
+        {/* Animated gradient orb */}
+        <motion.div
+          className={cn(
+            "absolute -right-8 -top-8 w-32 h-32 rounded-full blur-3xl",
+            `${stat.color.split(' ')[1]}`
+          )}
+          animate={{ scale: [1, 1.2, 1] }}
+          transition={{ duration: 3, repeat: Infinity }}
+          style={{ opacity: 0.1 }}
+        />
+        
+        <div className="relative z-10">
+          <div className="flex items-start justify-between mb-4">
+            <div className={cn(
+              "p-3 rounded-xl backdrop-blur-sm",
+              `${stat.color} bg-opacity-20`
+            )}>
+              <Icon className="w-6 h-6" />
+            </div>
+            <Badge 
+              className={cn(
+                "gap-1",
+                isPositive ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"
+              )}
+            >
+              {isPositive ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+              {stat.change}
+            </Badge>
+          </div>
+          
+          <p className="text-sm text-white/60 mb-1">{stat.title}</p>
+          <p className="text-3xl font-bold text-white">{stat.value}</p>
+        </div>
+      </div>
+    </motion.div>
+  )
+}
 
 const stats = [
   { 
@@ -159,41 +219,9 @@ export default function Dashboard() {
     >
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => {
-          const Icon = stat.icon
-          return (
-            <motion.div key={stat.title} variants={itemVariants}>
-              <GlassCard className="p-6">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">{stat.title}</p>
-                    <h3 className="text-3xl font-bold mt-2">{stat.value}</h3>
-                    <div className="flex items-center gap-1 mt-2">
-                      {stat.trend === 'up' ? (
-                        <ArrowUpRight className="w-4 h-4 text-emerald-400" />
-                      ) : (
-                        <ArrowDownRight className="w-4 h-4 text-red-400" />
-                      )}
-                      <span className={cn(
-                        "text-sm font-medium",
-                        stat.trend === 'up' ? 'text-emerald-400' : 'text-red-400'
-                      )}>
-                        {stat.change}
-                      </span>
-                      <span className="text-xs text-muted-foreground">vs last month</span>
-                    </div>
-                  </div>
-                  <div className={cn(
-                    "w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg",
-                    stat.color
-                  )}>
-                    <Icon className="w-6 h-6 text-white" />
-                  </div>
-                </div>
-              </GlassCard>
-            </motion.div>
-          )
-        })}
+        {stats.map((stat, index) => (
+          <StatCard key={stat.title} stat={stat} index={index} />
+        ))}
       </div>
 
       {/* Charts Section */}

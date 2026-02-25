@@ -58,12 +58,15 @@ const CardFooter = React.forwardRef(({ className, ...props }, ref) => (
 CardFooter.displayName = "CardFooter"
 
 // Enhanced Glass Card
-const GlassCard = React.forwardRef(({ className, hover = true, ...props }, ref) => (
+const GlassCard = React.forwardRef(({ className, hover = true, gradient = false, ...props }, ref) => (
   <div
     ref={ref}
     className={cn(
-      "rounded-xl border border-border/50 bg-card/50 backdrop-blur-xl text-card-foreground shadow-xl",
-      hover && "transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-primary/30",
+      "rounded-2xl border text-card-foreground shadow-xl overflow-hidden",
+      "bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl",
+      "border-white/20",
+      hover && "transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-white/40",
+      gradient && "bg-gradient-to-br from-primary/10 via-transparent to-transparent",
       className
     )}
     {...props}
