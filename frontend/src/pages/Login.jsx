@@ -1,8 +1,7 @@
-import { useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion'
-import { GoogleLogin } from '@react-oauth/google'
-import { GraduationCap, Sparkles, Shield, Users, BookOpen, Building2 } from 'lucide-react'
+import { GraduationCap, Sparkles, Shield, Users, BookOpen, Building2, Mail, Lock, Eye, EyeOff, UserCircle2, ChevronRight } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 
 // Animated gradient background
@@ -79,8 +78,18 @@ const AnimatedNumber = ({ value }) => {
 
 export default function Login() {
   const navigate = useNavigate()
-  const { loginWithGoogle, isAuthenticated, isLoading, error } = useAuth()
+  const { loginWithCredentials, isAuthenticated, isLoading, error } = useAuth()
   const containerRef = useRef(null)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+
+  const DEMO_ACCOUNTS = [
+    { role: 'Admin', email: 'admin@erpsystem.com', password: 'password123', color: 'from-violet-500 to-purple-600', icon: Shield },
+    { role: 'Staff', email: 'staff@erpsystem.com', password: 'password123', color: 'from-blue-500 to-cyan-600', icon: Users },
+    { role: 'Accountant', email: 'accountant@erpsystem.com', password: 'password123', color: 'from-emerald-500 to-teal-600', icon: BookOpen },
+    { role: 'Warden', email: 'warden@erpsystem.com', password: 'password123', color: 'from-amber-500 to-orange-600', icon: Building2 },
+  ]
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -88,15 +97,21 @@ export default function Login() {
     }
   }, [isAuthenticated, navigate])
 
-  const onGoogleSuccess = async (credentialResponse) => {
-    const result = await loginWithGoogle(credentialResponse.credential)
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    const result = await loginWithCredentials(email, password)
     if (result.success) {
       navigate('/', { replace: true })
     }
   }
 
-  const onGoogleError = () => {
-    console.error('Google Sign-In failed')
+  const handleQuickLogin = async (account) => {
+    setEmail(account.email)
+    setPassword(account.password)
+    const result = await loginWithCredentials(account.email, account.password)
+    if (result.success) {
+      navigate('/', { replace: true })
+    }
   }
 
   return (
@@ -269,25 +284,89 @@ export default function Login() {
                 </motion.div>
               )}
 
-              {/* Google Sign In Button */}
-              <div className="flex justify-center mb-6">
-                {isLoading ? (
-                  <div className="flex items-center gap-3 px-6 py-3 rounded-full bg-white/10">
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span className="text-white">Signing in...</span>
-                  </div>
-                ) : (
-                  <GoogleLogin
-                    onSuccess={onGoogleSuccess}
-                    onError={onGoogleError}
-                    useOneTap
-                    shape="pill"
-                    size="large"
-                    theme="filled_black"
-                    text="continue_with"
-                    width="320"
+              {/* Email / Password Form */}
+              <form onSubmit={handleSubmit} className="space-y-4 mb-6">
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                  <input
+                    type="email"
+                    placeholder="Email address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="w-full pl-11 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all"
                   />
-                )}
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="w-full pl-11 pr-11 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/60 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+                <motion.button
+                  type="submit"
+                  disabled={isLoading}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full py-3 rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 text-white font-semibold shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-shadow disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {isLoading ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Signing in...
+                    </>
+                  ) : (
+                    <>
+                      Sign In
+                      <ChevronRight className="w-4 h-4" />
+                    </>
+                  )}
+                </motion.button>
+              </form>
+
+              {/* Divider */}
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-white/10" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-3 bg-[#12121a] text-white/40">Quick Login</span>
+                </div>
+              </div>
+
+              {/* Quick login buttons */}
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                {DEMO_ACCOUNTS.map((account) => (
+                  <motion.button
+                    key={account.role}
+                    type="button"
+                    onClick={() => handleQuickLogin(account)}
+                    disabled={isLoading}
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    className="flex items-center gap-2 p-3 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed group"
+                  >
+                    <div className={`p-1.5 rounded-lg bg-gradient-to-br ${account.color} shadow-lg`}>
+                      <account.icon className="w-4 h-4 text-white" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-sm font-medium text-white group-hover:text-white/90">{account.role}</div>
+                      <div className="text-xs text-white/40 truncate">{account.email}</div>
+                    </div>
+                  </motion.button>
+                ))}
               </div>
 
               {/* Security badge */}
@@ -298,7 +377,7 @@ export default function Login() {
                 transition={{ delay: 0.5 }}
               >
                 <Shield className="w-4 h-4" />
-                <span>Protected by Google OAuth 2.0</span>
+                <span>Secure Authentication</span>
               </motion.div>
 
               {/* Divider */}
