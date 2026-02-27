@@ -32,6 +32,18 @@ function ProtectedRoute({ children }) {
   return children
 }
 
+// Role-based route guard — redirects to dashboard if role not allowed
+function RoleRoute({ children, allowedRoles }) {
+  const { user } = useAuth()
+  const userRole = user?.role || 'staff'
+
+  if (!allowedRoles.includes(userRole)) {
+    return <Navigate to="/" replace />
+  }
+
+  return children
+}
+
 // Public Route component (redirect to dashboard if already authenticated)
 function PublicRoute({ children }) {
   const { isAuthenticated, isLoading } = useAuth()
@@ -62,14 +74,14 @@ function App() {
           </ProtectedRoute>
         }>
           <Route index element={<Dashboard />} />
-          <Route path="students" element={<Students />} />
-          <Route path="students/:id" element={<StudentDetail />} />
-          <Route path="admissions" element={<Admissions />} />
-          <Route path="fees" element={<Fees />} />
-          <Route path="payments" element={<Payments />} />
-          <Route path="hostel" element={<Hostel />} />
-          <Route path="reports" element={<Reports />} />
-          <Route path="settings" element={<Settings />} />
+          <Route path="students" element={<RoleRoute allowedRoles={['admin', 'staff']}><Students /></RoleRoute>} />
+          <Route path="students/:id" element={<RoleRoute allowedRoles={['admin', 'staff']}><StudentDetail /></RoleRoute>} />
+          <Route path="admissions" element={<RoleRoute allowedRoles={['admin', 'staff']}><Admissions /></RoleRoute>} />
+          <Route path="fees" element={<RoleRoute allowedRoles={['admin', 'accountant']}><Fees /></RoleRoute>} />
+          <Route path="payments" element={<RoleRoute allowedRoles={['admin', 'accountant']}><Payments /></RoleRoute>} />
+          <Route path="hostel" element={<RoleRoute allowedRoles={['admin', 'hostel_warden']}><Hostel /></RoleRoute>} />
+          <Route path="reports" element={<RoleRoute allowedRoles={['admin', 'accountant']}><Reports /></RoleRoute>} />
+          <Route path="settings" element={<RoleRoute allowedRoles={['admin']}><Settings /></RoleRoute>} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

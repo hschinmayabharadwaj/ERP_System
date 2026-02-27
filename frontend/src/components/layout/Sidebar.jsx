@@ -16,21 +16,26 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { useAuth } from '@/context/AuthContext'
 
-const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Students', href: '/students', icon: Users },
-  { name: 'Admissions', href: '/admissions', icon: UserPlus },
-  { name: 'Fees', href: '/fees', icon: CreditCard },
-  { name: 'Payments', href: '/payments', icon: Receipt },
-  { name: 'Hostel', href: '/hostel', icon: Building2 },
-  { name: 'Reports', href: '/reports', icon: FileBarChart },
-  { name: 'Settings', href: '/settings', icon: Settings },
+const allNavItems = [
+  { name: 'Dashboard', href: '/', icon: LayoutDashboard, roles: ['admin', 'staff', 'accountant', 'hostel_warden'] },
+  { name: 'Students', href: '/students', icon: Users, roles: ['admin', 'staff'] },
+  { name: 'Admissions', href: '/admissions', icon: UserPlus, roles: ['admin', 'staff'] },
+  { name: 'Fees', href: '/fees', icon: CreditCard, roles: ['admin', 'accountant'] },
+  { name: 'Payments', href: '/payments', icon: Receipt, roles: ['admin', 'accountant'] },
+  { name: 'Hostel', href: '/hostel', icon: Building2, roles: ['admin', 'hostel_warden'] },
+  { name: 'Reports', href: '/reports', icon: FileBarChart, roles: ['admin', 'accountant'] },
+  { name: 'Settings', href: '/settings', icon: Settings, roles: ['admin'] },
 ]
 
 export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const location = useLocation()
+  const { user } = useAuth()
+
+  const userRole = user?.role || 'staff'
+  const navigation = allNavItems.filter(item => item.roles.includes(userRole))
 
   return (
     <TooltipProvider delayDuration={0}>

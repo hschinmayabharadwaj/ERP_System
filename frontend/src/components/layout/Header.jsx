@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
@@ -26,8 +26,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { cn } from '@/lib/utils'
+import { cn, formatCurrency } from '@/lib/utils'
 import { useAuth } from '@/context/AuthContext'
+import dashboardService from '@/lib/dashboard'
 
 const pageTitles = {
   '/': 'Dashboard',
@@ -48,11 +49,44 @@ export default function Header() {
   
   const currentPage = pageTitles[location.pathname] || 'Page'
 
-  const notifications = [
-    { id: 1, title: 'New admission request', time: '2 min ago', unread: true },
-    { id: 2, title: 'Fee payment received', time: '1 hour ago', unread: true },
-    { id: 3, title: 'Hostel allocation complete', time: '3 hours ago', unread: false },
-  ]
+  const [notifications, setNotifications] = useState([])
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const overview = await dashboardService.getOverview()
+        const notifs = []
+        if (overview?.recentAdmissions) {
+          overview.recentAdmissions.slice(0, 2).forEach((adm, i) => {
+            const name = `${adm.personalInfo?.firstName || ''} ${adm.personalInfo?.lastName || ''}`.trim()
+            notifs.push({
+              id: `adm-${i}`,
+              title: `Admission ${adm.status}: ${name || 'Student'}`,
+              time: adm.createdAt ? new Date(adm.createdAt).toLocaleDateString() : '',
+              unread: adm.status === 'pending',
+            })
+          })
+        }
+        if (overview?.recentPayments) {
+          overview.recentPayments.slice(0, 2).forEach((pay, i) => {
+            const name = pay.studentId
+              ? `${pay.studentId.personalInfo?.firstName || ''} ${pay.studentId.personalInfo?.lastName || ''}`.trim() || pay.studentId?.studentId || ''
+              : ''
+            notifs.push({
+              id: `pay-${i}`,
+              title: `Payment ${formatCurrency(pay.amount)} from ${name}`,
+              time: pay.paymentDate ? new Date(pay.paymentDate).toLocaleDateString() : '',
+              unread: true,
+            })
+          })
+        }
+        setNotifications(notifs)
+      } catch {
+        // If fetch fails, leave notifications empty
+      }
+    }
+    if (user) fetchNotifications()
+  }, [user])
 
   const unreadCount = notifications.filter(n => n.unread).length
 

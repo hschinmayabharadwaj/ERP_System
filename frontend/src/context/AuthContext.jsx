@@ -3,6 +3,8 @@ import { jwtDecode } from 'jwt-decode'
 
 const AuthContext = createContext(null)
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api'
+
 // Google Client ID - Replace with your actual client ID
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID'
 
@@ -43,6 +45,52 @@ export const AuthProvider = ({ children }) => {
     }
 
     checkAuth()
+  }, [])
+
+  // Handle email/password login
+  const loginWithCredentials = useCallback(async (email, password) => {
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed')
+      }
+
+      const userData = {
+        id: data.user._id,
+        email: data.user.email,
+        name: `${data.user.firstName} ${data.user.lastName}`,
+        firstName: data.user.firstName,
+        lastName: data.user.lastName,
+        role: data.user.role,
+        phone: data.user.phone,
+      }
+
+      localStorage.setItem('erp_user', JSON.stringify(userData))
+      localStorage.setItem('erp_token', data.accessToken)
+      localStorage.setItem('accessToken', data.accessToken)
+      localStorage.setItem('refreshToken', data.refreshToken)
+
+      setUser(userData)
+      setIsAuthenticated(true)
+      setIsLoading(false)
+
+      return { success: true, user: userData }
+    } catch (err) {
+      console.error('Login error:', err)
+      setError(err.message || 'Failed to sign in. Please try again.')
+      setIsLoading(false)
+      return { success: false, error: err.message }
+    }
   }, [])
 
   // Handle Google Sign-In with credential token
@@ -125,6 +173,7 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated,
     isLoading,
     error,
+    loginWithCredentials,
     loginWithGoogle,
     logout,
     getToken,
