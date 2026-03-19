@@ -51,23 +51,6 @@ router.get('/', authenticate, async (req, res) => {
   }
 });
 
-// Get payment by ID
-router.get('/:id', authenticate, async (req, res) => {
-  try {
-    const payment = await Payment.findById(req.params.id)
-      .populate('studentId', 'studentId personalInfo')
-      .populate('feeId')
-      .populate('receivedBy', 'firstName lastName');
-    
-    if (!payment) {
-      return res.status(404).json({ error: 'Payment not found' });
-    }
-    res.json(payment);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 // Record new payment
 router.post('/', authenticate, authorize('admin', 'accountant'), async (req, res) => {
   try {
@@ -190,6 +173,23 @@ router.get('/student/:studentId', authenticate, async (req, res) => {
     const payments = await Payment.find({ studentId: req.params.studentId })
       .sort({ paymentDate: -1 });
     res.json(payments);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get payment by ID
+router.get('/:id', authenticate, async (req, res) => {
+  try {
+    const payment = await Payment.findById(req.params.id)
+      .populate('studentId', 'studentId personalInfo')
+      .populate('feeId')
+      .populate('receivedBy', 'firstName lastName');
+    
+    if (!payment) {
+      return res.status(404).json({ error: 'Payment not found' });
+    }
+    res.json(payment);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

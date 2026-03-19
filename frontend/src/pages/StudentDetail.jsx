@@ -29,6 +29,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { cn, formatCurrency, formatDate, getInitials, getStatusColor } from '@/lib/utils'
+import { toast } from 'sonner'
 
 // Mock student data
 const studentData = {
@@ -84,6 +85,18 @@ const documents = [
 export default function StudentDetail() {
   const { id } = useParams()
 
+  const downloadTextFile = (filename, content) => {
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', filename)
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -97,11 +110,14 @@ export default function StudentDetail() {
           Back to Students
         </Link>
         <div className="flex gap-2">
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => toast.info(`Edit flow for ${studentData.name} is ready`)}>
             <Edit className="w-4 h-4 mr-2" />
             Edit
           </Button>
-          <Button variant="outline">
+          <Button
+            variant="outline"
+            onClick={() => downloadTextFile(`student-${id || studentData.id}.txt`, JSON.stringify(studentData, null, 2))}
+          >
             <Download className="w-4 h-4 mr-2" />
             Export
           </Button>
@@ -287,7 +303,11 @@ export default function StudentDetail() {
                     </TableCell>
                     <TableCell>
                       {fee.receipt ? (
-                        <Button variant="ghost" size="sm">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => downloadTextFile(`${fee.receipt}.txt`, `Receipt: ${fee.receipt}\nStudent: ${studentData.name}\nAmount: ${formatCurrency(fee.amount)}`)}
+                        >
                           <Download className="w-4 h-4 mr-1" />
                           {fee.receipt}
                         </Button>
@@ -314,7 +334,11 @@ export default function StudentDetail() {
                     <div className="font-medium text-sm">{doc.name}</div>
                     <div className="text-xs text-muted-foreground">{formatDate(doc.uploadDate)}</div>
                   </div>
-                  <Button variant="ghost" size="icon">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => downloadTextFile(`${doc.name.replace(/\s+/g, '-').toLowerCase()}.${doc.type.toLowerCase()}`, `Document: ${doc.name}`)}
+                  >
                     <Download className="w-4 h-4" />
                   </Button>
                 </div>

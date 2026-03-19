@@ -57,19 +57,6 @@ router.get('/', authenticate, async (req, res) => {
   }
 });
 
-// Get student by ID
-router.get('/:id', authenticate, async (req, res) => {
-  try {
-    const student = await Student.findById(req.params.id);
-    if (!student) {
-      return res.status(404).json({ error: 'Student not found' });
-    }
-    res.json(student);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 // Create new student
 router.post('/', authenticate, authorize('admin', 'staff'), async (req, res) => {
   try {
@@ -143,6 +130,19 @@ router.get('/stats/overview', authenticate, async (req, res) => {
       hostelResidents,
       courseDistribution
     });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get student by ID
+router.get('/:id', authenticate, async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.id);
+    if (!student) {
+      return res.status(404).json({ error: 'Student not found' });
+    }
+    res.json(student);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

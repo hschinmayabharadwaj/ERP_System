@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import { 
   Users, 
   GraduationCap, 
@@ -24,6 +25,7 @@ import { Progress } from '@/components/ui/progress'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { cn, formatCurrency, getInitials } from '@/lib/utils'
 import { useAuth } from '@/context/AuthContext'
+import { toast } from 'sonner'
 import { 
   LineChart, 
   Line, 
@@ -257,6 +259,7 @@ const itemVariants = {
 }
 
 export default function Dashboard() {
+  const navigate = useNavigate()
   const { user } = useAuth()
   const userRole = user?.role || 'staff'
 
@@ -306,7 +309,7 @@ export default function Dashboard() {
                     <CardTitle>Revenue Overview</CardTitle>
                     <p className="text-sm text-muted-foreground mt-1">Monthly revenue vs expenses</p>
                   </div>
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon" onClick={() => toast.info('Revenue chart controls can be extended here')}>
                     <MoreHorizontal className="w-5 h-5" />
                   </Button>
                 </div>
@@ -446,7 +449,7 @@ export default function Dashboard() {
           <Card className="p-6">
             <div className="flex items-center justify-between mb-6">
               <CardTitle>Recent Activity</CardTitle>
-              <Button variant="ghost" size="sm">View all</Button>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/reports')}>View all</Button>
             </div>
             <div className="space-y-4">
               {filteredActivities.map((activity) => {
@@ -476,7 +479,7 @@ export default function Dashboard() {
           <Card className="p-6 h-full">
             <div className="flex items-center justify-between mb-6">
               <CardTitle>Upcoming Events</CardTitle>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" onClick={() => toast.info('Open calendar integration from reports page')}>
                 <Calendar className="w-4 h-4" />
               </Button>
             </div>

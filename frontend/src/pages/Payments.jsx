@@ -45,9 +45,10 @@ import {
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { cn, formatCurrency, formatDate, formatDateTime, getInitials } from '@/lib/utils'
+import { toast } from 'sonner'
 
 // Mock payments data
-const payments = [
+const initialPayments = [
   {
     id: 'PAY001',
     receiptNo: 'RCP-2026-001',
@@ -126,6 +127,67 @@ export default function Payments() {
   const [searchQuery, setSearchQuery] = useState('')
   const [methodFilter, setMethodFilter] = useState('all')
   const [isNewPaymentOpen, setIsNewPaymentOpen] = useState(false)
+  const [payments, setPayments] = useState(initialPayments)
+  const [newPayment, setNewPayment] = useState({
+    studentId: '',
+    amount: '',
+    method: '',
+    transactionId: '',
+    remarks: ''
+  })
+
+  const handleRecordPayment = () => {
+    if (!newPayment.studentId || !newPayment.amount || !newPayment.method) {
+      toast.error('Please complete student ID, amount and payment method')
+      return
+    }
+
+    const created = {
+      id: `PAY${String(payments.length + 1).padStart(3, '0')}`,
+      receiptNo: `RCP-2026-${String(payments.length + 1).padStart(3, '0')}`,
+      studentId: newPayment.studentId,
+      studentName: 'New Student',
+      amount: Number(newPayment.amount),
+      method: newPayment.method,
+      date: new Date().toISOString(),
+      status: 'completed',
+      transactionId: newPayment.transactionId || null,
+      remarks: newPayment.remarks
+    }
+
+    setPayments((previous) => [created, ...previous])
+    setNewPayment({ studentId: '', amount: '', method: '', transactionId: '', remarks: '' })
+    setIsNewPaymentOpen(false)
+    toast.success(`Payment recorded with receipt ${created.receiptNo}`)
+  }
+
+  const handleExport = () => {
+    const rows = payments.map((payment) => [
+      payment.receiptNo,
+      payment.studentId,
+      payment.studentName,
+      payment.amount,
+      payment.method,
+      payment.date,
+      payment.transactionId || ''
+    ])
+
+    const csv = [
+      'Receipt No,Student ID,Student Name,Amount,Method,Date,Transaction ID',
+      ...rows.map((row) => row.join(','))
+    ].join('\n')
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', 'payments-report.csv')
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    URL.revokeObjectURL(url)
+    toast.success('Payments report exported')
+  }
 
   const filteredPayments = payments.filter(payment => {
     const matchesSearch = payment.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -172,15 +234,27 @@ export default function Payments() {
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label>Student ID</Label>
-                <Input placeholder="Enter student ID (e.g., STU001)" />
+                <Input
+                  placeholder="Enter student ID (e.g., STU001)"
+                  value={newPayment.studentId}
+                  onChange={(event) => setNewPayment((previous) => ({ ...previous, studentId: event.target.value }))}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Amount</Label>
-                <Input type="number" placeholder="Enter amount" />
+                <Input
+                  type="number"
+                  placeholder="Enter amount"
+                  value={newPayment.amount}
+                  onChange={(event) => setNewPayment((previous) => ({ ...previous, amount: event.target.value }))}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Payment Method</Label>
-                <Select>
+                <Select
+                  value={newPayment.method}
+                  onValueChange={(value) => setNewPayment((previous) => ({ ...previous, method: value }))}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select method" />
                   </SelectTrigger>
@@ -194,16 +268,24 @@ export default function Payments() {
               </div>
               <div className="space-y-2">
                 <Label>Transaction ID (Optional)</Label>
-                <Input placeholder="Enter transaction reference" />
+                <Input
+                  placeholder="Enter transaction reference"
+                  value={newPayment.transactionId}
+                  onChange={(event) => setNewPayment((previous) => ({ ...previous, transactionId: event.target.value }))}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Remarks (Optional)</Label>
-                <Input placeholder="Any additional notes" />
+                <Input
+                  placeholder="Any additional notes"
+                  value={newPayment.remarks}
+                  onChange={(event) => setNewPayment((previous) => ({ ...previous, remarks: event.target.value }))}
+                />
               </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsNewPaymentOpen(false)}>Cancel</Button>
-              <Button onClick={() => setIsNewPaymentOpen(false)}>Record Payment</Button>
+              <Button onClick={handleRecordPayment}>Record Payment</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -254,7 +336,7 @@ export default function Payments() {
             </SelectContent>
           </Select>
         </div>
-        <Button variant="outline">
+        <Button variant="outline" onClick={handleExport}>
           <Download className="w-4 h-4 mr-2" />
           Export
         </Button>
@@ -320,13 +402,13 @@ export default function Payments() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="icon" onClick={() => toast.info(`Viewing ${payment.receiptNo}`)}>
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="icon" onClick={() => window.print()}>
                           <Printer className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="icon" onClick={handleExport}>
                           <Download className="w-4 h-4" />
                         </Button>
                       </div>

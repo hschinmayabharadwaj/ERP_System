@@ -44,20 +44,6 @@ router.get('/', authenticate, async (req, res) => {
   }
 });
 
-// Get fee by ID
-router.get('/:id', authenticate, async (req, res) => {
-  try {
-    const fee = await Fee.findById(req.params.id)
-      .populate('studentId', 'studentId personalInfo');
-    if (!fee) {
-      return res.status(404).json({ error: 'Fee record not found' });
-    }
-    res.json(fee);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 // Create fee record for student
 router.post('/', authenticate, authorize('admin', 'accountant'), async (req, res) => {
   try {
@@ -135,6 +121,20 @@ router.get('/student/:studentId', authenticate, async (req, res) => {
     const fees = await Fee.find({ studentId: req.params.studentId })
       .sort({ academicYear: -1, semester: -1 });
     res.json(fees);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get fee by ID
+router.get('/:id', authenticate, async (req, res) => {
+  try {
+    const fee = await Fee.findById(req.params.id)
+      .populate('studentId', 'studentId personalInfo');
+    if (!fee) {
+      return res.status(404).json({ error: 'Fee record not found' });
+    }
+    res.json(fee);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
