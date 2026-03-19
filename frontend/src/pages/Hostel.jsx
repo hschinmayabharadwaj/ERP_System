@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { 
   Search,
@@ -43,9 +43,10 @@ import {
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn, formatCurrency, getInitials } from '@/lib/utils'
+import { toast } from 'sonner'
 
 // Mock room data
-const rooms = [
+const initialRooms = [
   { id: 'R001', number: '101', block: 'A', floor: 1, type: 'single', capacity: 1, occupied: 1, status: 'occupied', fee: 10000, occupants: ['Rahul Sharma'] },
   { id: 'R002', number: '102', block: 'A', floor: 1, type: 'double', capacity: 2, occupied: 2, status: 'occupied', fee: 8000, occupants: ['Priya Patel', 'Sneha Gupta'] },
   { id: 'R003', number: '103', block: 'A', floor: 1, type: 'double', capacity: 2, occupied: 1, status: 'available', fee: 8000, occupants: ['Amit Kumar'] },
@@ -55,8 +56,6 @@ const rooms = [
   { id: 'R007', number: '101', block: 'B', floor: 1, type: 'single', capacity: 1, occupied: 1, status: 'occupied', fee: 10000, occupants: ['Divya Sharma'] },
   { id: 'R008', number: '102', block: 'B', floor: 1, type: 'double', capacity: 2, occupied: 0, status: 'available', fee: 8000, occupants: [] },
 ]
-
-const blocks = ['A', 'B', 'C']
 
 const statusConfig = {
   occupied: { label: 'Occupied', color: 'bg-blue-500/20 text-blue-400 border-blue-500/30', icon: Users },
@@ -79,6 +78,61 @@ export default function Hostel() {
   const [blockFilter, setBlockFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
   const [viewMode, setViewMode] = useState('grid')
+  const [rooms, setRooms] = useState(initialRooms)
+  const [isAddRoomOpen, setIsAddRoomOpen] = useState(false)
+  const [selectedRoom, setSelectedRoom] = useState(null)
+  const [newRoom, setNewRoom] = useState({ number: '', block: 'A', floor: '1', type: 'single', fee: '' })
+
+  const blockOptions = useMemo(() => [...new Set(rooms.map((room) => room.block))], [rooms])
+
+  const handleCreateRoom = () => {
+    if (!newRoom.number || !newRoom.fee) {
+      toast.error('Please provide room number and monthly fee')
+      return
+    }
+
+    const roomTypeCapacity = { single: 1, double: 2, triple: 3 }
+    const createdRoom = {
+      id: `R${String(rooms.length + 1).padStart(3, '0')}`,
+      number: newRoom.number,
+      block: newRoom.block,
+      floor: Number(newRoom.floor),
+      type: newRoom.type,
+      capacity: roomTypeCapacity[newRoom.type],
+      occupied: 0,
+      status: 'available',
+      fee: Number(newRoom.fee),
+      occupants: []
+    }
+
+    setRooms((previous) => [createdRoom, ...previous])
+    setNewRoom({ number: '', block: 'A', floor: '1', type: 'single', fee: '' })
+    setIsAddRoomOpen(false)
+    toast.success(`Room ${createdRoom.block}${createdRoom.number} added`)
+  }
+
+  const handleAllocateRoom = (roomId) => {
+    setRooms((previous) => previous.map((room) => {
+      if (room.id !== roomId) {
+        return room
+      }
+      if (room.occupied >= room.capacity) {
+        return room
+      }
+
+      const nextOccupantNumber = room.occupied + 1
+      const occupantName = `Student ${nextOccupantNumber}`
+      const nextOccupied = room.occupied + 1
+
+      return {
+        ...room,
+        occupied: nextOccupied,
+        occupants: [...room.occupants, occupantName],
+        status: nextOccupied >= room.capacity ? 'occupied' : 'available'
+      }
+    }))
+    toast.success('Student allocated to room')
+  }
 
   const filteredRooms = rooms.filter(room => {
     const matchesSearch = room.number.includes(searchQuery) || 
@@ -111,11 +165,11 @@ export default function Hostel() {
           <p className="text-muted-foreground">Manage rooms, allocations, and occupancy</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => toast.info('Hostel settings are available in the admin settings panel')}>
             <Settings className="w-4 h-4 mr-2" />
             Settings
           </Button>
-          <Button>
+          <Button onClick={() => setIsAddRoomOpen(true)}>
             <Plus className="w-4 h-4 mr-2" />
             Add Room
           </Button>
@@ -201,7 +255,7 @@ export default function Hostel() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Blocks</SelectItem>
-              {blocks.map(block => (
+              {blockOptions.map(block => (
                 <SelectItem key={block} value={block}>Block {block}</SelectItem>
               ))}
             </SelectContent>
@@ -308,12 +362,17 @@ export default function Hostel() {
               )}
 
               <div className="mt-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button variant="outline" size="sm" className="flex-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => setSelectedRoom(room)}
+                >
                   <Eye className="w-4 h-4 mr-1" />
                   View
                 </Button>
                 {room.status === 'available' && (
-                  <Button size="sm" className="flex-1">
+                  <Button size="sm" className="flex-1" onClick={() => handleAllocateRoom(room.id)}>
                     <Key className="w-4 h-4 mr-1" />
                     Allocate
                   </Button>
@@ -331,6 +390,93 @@ export default function Hostel() {
           <p className="text-muted-foreground">Try adjusting your search or filter criteria</p>
         </Card>
       )}
+
+      <Dialog open={isAddRoomOpen} onOpenChange={setIsAddRoomOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add New Room</DialogTitle>
+            <DialogDescription>Create a new hostel room with fee details.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label>Room Number</Label>
+              <Input
+                value={newRoom.number}
+                onChange={(event) => setNewRoom((previous) => ({ ...previous, number: event.target.value }))}
+                placeholder="e.g., 301"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Block</Label>
+                <Select value={newRoom.block} onValueChange={(value) => setNewRoom((previous) => ({ ...previous, block: value }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="A">Block A</SelectItem>
+                    <SelectItem value="B">Block B</SelectItem>
+                    <SelectItem value="C">Block C</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Floor</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  value={newRoom.floor}
+                  onChange={(event) => setNewRoom((previous) => ({ ...previous, floor: event.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Room Type</Label>
+                <Select value={newRoom.type} onValueChange={(value) => setNewRoom((previous) => ({ ...previous, type: value }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="single">Single</SelectItem>
+                    <SelectItem value="double">Double</SelectItem>
+                    <SelectItem value="triple">Triple</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Monthly Fee</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  value={newRoom.fee}
+                  onChange={(event) => setNewRoom((previous) => ({ ...previous, fee: event.target.value }))}
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddRoomOpen(false)}>Cancel</Button>
+            <Button onClick={handleCreateRoom}>Create Room</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={Boolean(selectedRoom)} onOpenChange={(open) => !open && setSelectedRoom(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Room Details</DialogTitle>
+            <DialogDescription>{selectedRoom ? `Block ${selectedRoom.block} • Room ${selectedRoom.number}` : ''}</DialogDescription>
+          </DialogHeader>
+          {selectedRoom && (
+            <div className="space-y-2 text-sm">
+              <p><span className="text-muted-foreground">Type:</span> {selectedRoom.type}</p>
+              <p><span className="text-muted-foreground">Occupancy:</span> {selectedRoom.occupied}/{selectedRoom.capacity}</p>
+              <p><span className="text-muted-foreground">Status:</span> {statusConfig[selectedRoom.status].label}</p>
+              <p><span className="text-muted-foreground">Monthly Fee:</span> {formatCurrency(selectedRoom.fee)}</p>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSelectedRoom(null)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   )
 }

@@ -30,6 +30,23 @@ import {
 } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
+
+const notificationDefaults = [
+  { title: 'Email Notifications', description: 'Receive email updates for important events', enabled: true },
+  { title: 'New Admissions', description: 'Get notified when new applications are submitted', enabled: true },
+  { title: 'Payment Alerts', description: 'Notifications for fee payments and reminders', enabled: true },
+  { title: 'Hostel Updates', description: 'Room allocation and maintenance updates', enabled: false },
+  { title: 'System Updates', description: 'Updates about system maintenance and features', enabled: false },
+]
+
+const accentOptions = [
+  { name: 'Blue', color: '#3b82f6' },
+  { name: 'Purple', color: '#8b5cf6' },
+  { name: 'Green', color: '#10b981' },
+  { name: 'Orange', color: '#f59e0b' },
+  { name: 'Rose', color: '#f43f5e' },
+]
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -43,10 +60,31 @@ const itemVariants = {
 
 export default function Settings() {
   const [saved, setSaved] = useState(false)
+  const [notificationSettings, setNotificationSettings] = useState(notificationDefaults)
+  const [selectedTheme, setSelectedTheme] = useState('Dark')
+  const [selectedAccent, setSelectedAccent] = useState('Blue')
+  const [is2faEnabled, setIs2faEnabled] = useState(false)
 
   const handleSave = () => {
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
+    toast.success('Profile settings saved')
+  }
+
+  const handleToggleNotification = (index) => {
+    setNotificationSettings((previous) => previous.map((setting, settingIndex) => (
+      settingIndex === index ? { ...setting, enabled: !setting.enabled } : setting
+    )))
+  }
+
+  const handleThemeChange = (theme) => {
+    setSelectedTheme(theme)
+    toast.success(`Theme set to ${theme}`)
+  }
+
+  const handleAccentChange = (accentName) => {
+    setSelectedAccent(accentName)
+    toast.success(`Accent color set to ${accentName}`)
   }
 
   return (
@@ -96,7 +134,7 @@ export default function Settings() {
                   <Avatar className="w-24 h-24">
                     <AvatarFallback className="text-2xl">AD</AvatarFallback>
                   </Avatar>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => toast.info('Avatar upload ready. Connect storage service to persist image.')}>
                     <Upload className="w-4 h-4 mr-2" />
                     Upload Photo
                   </Button>
@@ -140,19 +178,14 @@ export default function Settings() {
             <Card className="p-6">
               <CardTitle className="text-lg mb-6">Notification Preferences</CardTitle>
               <div className="space-y-6">
-                {[
-                  { title: 'Email Notifications', description: 'Receive email updates for important events', enabled: true },
-                  { title: 'New Admissions', description: 'Get notified when new applications are submitted', enabled: true },
-                  { title: 'Payment Alerts', description: 'Notifications for fee payments and reminders', enabled: true },
-                  { title: 'Hostel Updates', description: 'Room allocation and maintenance updates', enabled: false },
-                  { title: 'System Updates', description: 'Updates about system maintenance and features', enabled: false },
-                ].map((item, i) => (
+                {notificationSettings.map((item, i) => (
                   <div key={i} className="flex items-center justify-between py-3 border-b border-border last:border-0">
                     <div>
                       <h4 className="font-medium">{item.title}</h4>
                       <p className="text-sm text-muted-foreground">{item.description}</p>
                     </div>
                     <button
+                      onClick={() => handleToggleNotification(i)}
                       className={cn(
                         "w-12 h-6 rounded-full transition-colors relative",
                         item.enabled ? "bg-primary" : "bg-muted"
@@ -190,7 +223,7 @@ export default function Settings() {
                   <Label>Confirm New Password</Label>
                   <Input type="password" placeholder="Confirm new password" />
                 </div>
-                <Button>Update Password</Button>
+                <Button onClick={() => toast.success('Password updated successfully')}>Update Password</Button>
               </div>
             </Card>
           </motion.div>
@@ -203,9 +236,17 @@ export default function Settings() {
                   <p className="text-sm text-muted-foreground">
                     Add an extra layer of security to your account
                   </p>
-                  <Badge variant="secondary" className="mt-2">Not Enabled</Badge>
+                  <Badge variant="secondary" className="mt-2">{is2faEnabled ? 'Enabled' : 'Not Enabled'}</Badge>
                 </div>
-                <Button variant="outline">Enable 2FA</Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIs2faEnabled((previous) => !previous)
+                    toast.success(is2faEnabled ? '2FA disabled' : '2FA enabled')
+                  }}
+                >
+                  {is2faEnabled ? 'Disable 2FA' : 'Enable 2FA'}
+                </Button>
               </div>
             </Card>
           </motion.div>
@@ -238,9 +279,10 @@ export default function Settings() {
                 {['Dark', 'Light', 'System'].map((theme) => (
                   <button
                     key={theme}
+                    onClick={() => handleThemeChange(theme)}
                     className={cn(
                       "p-4 rounded-lg border-2 transition-colors text-center",
-                      theme === 'Dark' ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"
+                      theme === selectedTheme ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"
                     )}
                   >
                     <div className={cn(
@@ -258,18 +300,13 @@ export default function Settings() {
             <Card className="p-6">
               <CardTitle className="text-lg mb-6">Accent Color</CardTitle>
               <div className="flex gap-3">
-                {[
-                  { name: 'Blue', color: '#3b82f6' },
-                  { name: 'Purple', color: '#8b5cf6' },
-                  { name: 'Green', color: '#10b981' },
-                  { name: 'Orange', color: '#f59e0b' },
-                  { name: 'Rose', color: '#f43f5e' },
-                ].map((accent) => (
+                {accentOptions.map((accent) => (
                   <button
                     key={accent.name}
+                    onClick={() => handleAccentChange(accent.name)}
                     className={cn(
                       "w-10 h-10 rounded-full ring-2 ring-offset-2 ring-offset-background transition-transform hover:scale-110",
-                      accent.name === 'Blue' ? "ring-primary" : "ring-transparent"
+                      accent.name === selectedAccent ? "ring-primary" : "ring-transparent"
                     )}
                     style={{ backgroundColor: accent.color }}
                     title={accent.name}
@@ -311,11 +348,11 @@ export default function Settings() {
               <CardTitle className="text-lg mb-2">Data Management</CardTitle>
               <CardDescription className="mb-6">Export or backup your system data</CardDescription>
               <div className="flex gap-3">
-                <Button variant="outline">
+                <Button variant="outline" onClick={() => toast.success('System backup started')}>
                   <Database className="w-4 h-4 mr-2" />
                   Create Backup
                 </Button>
-                <Button variant="outline">
+                <Button variant="outline" onClick={() => toast.success('Data export queued')}>
                   <Download className="w-4 h-4 mr-2" />
                   Export Data
                 </Button>

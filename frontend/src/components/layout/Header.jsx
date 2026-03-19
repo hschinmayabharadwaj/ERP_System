@@ -29,6 +29,7 @@ import {
 import { cn, formatCurrency } from '@/lib/utils'
 import { useAuth } from '@/context/AuthContext'
 import dashboardService from '@/lib/dashboard'
+import { toast } from 'sonner'
 
 const pageTitles = {
   '/': 'Dashboard',
@@ -136,7 +137,7 @@ export default function Header() {
       {/* Right Section - Actions */}
       <div className="flex items-center gap-2">
         {/* Quick Add Button */}
-        <Button variant="ghost" size="icon" className="hidden sm:flex">
+        <Button variant="ghost" size="icon" className="hidden sm:flex" onClick={() => navigate('/admissions')}>
           <Plus className="w-5 h-5" />
         </Button>
 
@@ -176,14 +177,25 @@ export default function Header() {
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="justify-center text-primary">
+            <DropdownMenuItem
+              className="justify-center text-primary"
+              onClick={() => {
+                setNotifications((previous) => previous.map((notification) => ({ ...notification, unread: false })))
+                toast.success('All notifications marked as read')
+              }}
+            >
               View all notifications
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
         {/* Help */}
-        <Button variant="ghost" size="icon" className="hidden sm:flex">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="hidden sm:flex"
+          onClick={() => window.open('https://github.com', '_blank', 'noopener,noreferrer')}
+        >
           <HelpCircle className="w-5 h-5" />
         </Button>
 

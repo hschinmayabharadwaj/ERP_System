@@ -39,9 +39,10 @@ import {
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { cn, formatDate, getInitials } from '@/lib/utils'
+import { toast } from 'sonner'
 
 // Mock admission applications
-const applications = [
+const initialApplications = [
   {
     id: 'APP001',
     name: 'Arun Kumar',
@@ -123,8 +124,46 @@ export default function Admissions() {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [isNewAppOpen, setIsNewAppOpen] = useState(false)
+  const [applicationList, setApplicationList] = useState(initialApplications)
+  const [selectedApplication, setSelectedApplication] = useState(null)
+  const [newApplication, setNewApplication] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    course: ''
+  })
 
-  const filteredApplications = applications.filter(app => {
+  const handleCreateApplication = () => {
+    if (!newApplication.name || !newApplication.email || !newApplication.phone || !newApplication.course) {
+      toast.error('Please fill all required application fields')
+      return
+    }
+
+    const created = {
+      id: `APP${String(applicationList.length + 1).padStart(3, '0')}`,
+      ...newApplication,
+      appliedDate: new Date().toISOString(),
+      status: 'pending',
+      documents: [],
+      score: 0
+    }
+
+    setApplicationList((previous) => [created, ...previous])
+    setNewApplication({ name: '', email: '', phone: '', course: '' })
+    setIsNewAppOpen(false)
+    toast.success('Application created successfully')
+  }
+
+  const handleApproveApplication = (applicationId) => {
+    setApplicationList((previous) => previous.map((application) => (
+      application.id === applicationId
+        ? { ...application, status: 'approved' }
+        : application
+    )))
+    toast.success('Application approved')
+  }
+
+  const filteredApplications = applicationList.filter(app => {
     const matchesSearch = app.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           app.email.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesStatus = statusFilter === 'all' || app.status === statusFilter
@@ -132,10 +171,10 @@ export default function Admissions() {
   })
 
   const stats = {
-    total: applications.length,
-    pending: applications.filter(a => a.status === 'pending').length,
-    approved: applications.filter(a => a.status === 'approved').length,
-    rejected: applications.filter(a => a.status === 'rejected').length,
+    total: applicationList.length,
+    pending: applicationList.filter(a => a.status === 'pending').length,
+    approved: applicationList.filter(a => a.status === 'approved').length,
+    rejected: applicationList.filter(a => a.status === 'rejected').length,
   }
 
   return (
@@ -168,35 +207,51 @@ export default function Admissions() {
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label>Full Name</Label>
-                <Input placeholder="Enter student name" />
+                <Input
+                  placeholder="Enter student name"
+                  value={newApplication.name}
+                  onChange={(event) => setNewApplication((previous) => ({ ...previous, name: event.target.value }))}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Email</Label>
-                <Input type="email" placeholder="email@example.com" />
+                <Input
+                  type="email"
+                  placeholder="email@example.com"
+                  value={newApplication.email}
+                  onChange={(event) => setNewApplication((previous) => ({ ...previous, email: event.target.value }))}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Phone</Label>
-                <Input placeholder="+91 XXXXX XXXXX" />
+                <Input
+                  placeholder="+91 XXXXX XXXXX"
+                  value={newApplication.phone}
+                  onChange={(event) => setNewApplication((previous) => ({ ...previous, phone: event.target.value }))}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Course</Label>
-                <Select>
+                <Select
+                  value={newApplication.course}
+                  onValueChange={(value) => setNewApplication((previous) => ({ ...previous, course: value }))}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select course" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="btech-cse">B.Tech CSE</SelectItem>
-                    <SelectItem value="btech-ece">B.Tech ECE</SelectItem>
-                    <SelectItem value="msc-physics">M.Sc Physics</SelectItem>
-                    <SelectItem value="mba">MBA</SelectItem>
-                    <SelectItem value="bcom">B.Com</SelectItem>
+                    <SelectItem value="B.Tech CSE">B.Tech CSE</SelectItem>
+                    <SelectItem value="B.Tech ECE">B.Tech ECE</SelectItem>
+                    <SelectItem value="M.Sc Physics">M.Sc Physics</SelectItem>
+                    <SelectItem value="MBA">MBA</SelectItem>
+                    <SelectItem value="B.Com">B.Com</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsNewAppOpen(false)}>Cancel</Button>
-              <Button onClick={() => setIsNewAppOpen(false)}>Create Application</Button>
+              <Button onClick={handleCreateApplication}>Create Application</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -305,13 +360,23 @@ export default function Admissions() {
               </div>
 
               <div className="mt-4 flex gap-2">
-                <Button variant="outline" size="sm" className="flex-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => setSelectedApplication(app)}
+                >
                   <Eye className="w-4 h-4 mr-1" />
                   View
                 </Button>
                 {app.status === 'pending' && (
                   <>
-                    <Button variant="default" size="sm" className="flex-1">
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => handleApproveApplication(app.id)}
+                    >
                       <CheckCircle2 className="w-4 h-4 mr-1" />
                       Approve
                     </Button>
@@ -330,6 +395,28 @@ export default function Admissions() {
           <p className="text-muted-foreground">Try adjusting your search or filter criteria</p>
         </Card>
       )}
+
+      <Dialog open={Boolean(selectedApplication)} onOpenChange={(open) => !open && setSelectedApplication(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Application Details</DialogTitle>
+            <DialogDescription>{selectedApplication?.id}</DialogDescription>
+          </DialogHeader>
+          {selectedApplication && (
+            <div className="space-y-2 text-sm">
+              <p><span className="text-muted-foreground">Name:</span> {selectedApplication.name}</p>
+              <p><span className="text-muted-foreground">Email:</span> {selectedApplication.email}</p>
+              <p><span className="text-muted-foreground">Phone:</span> {selectedApplication.phone}</p>
+              <p><span className="text-muted-foreground">Course:</span> {selectedApplication.course}</p>
+              <p><span className="text-muted-foreground">Applied:</span> {formatDate(selectedApplication.appliedDate)}</p>
+              <p><span className="text-muted-foreground">Status:</span> {statusConfig[selectedApplication.status].label}</p>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSelectedApplication(null)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   )
 }

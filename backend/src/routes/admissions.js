@@ -51,19 +51,6 @@ router.get('/', authenticate, async (req, res) => {
   }
 });
 
-// Get admission by ID
-router.get('/:id', authenticate, async (req, res) => {
-  try {
-    const admission = await Admission.findById(req.params.id);
-    if (!admission) {
-      return res.status(404).json({ error: 'Admission not found' });
-    }
-    res.json(admission);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 // Create new admission application
 router.post('/', async (req, res) => {
   try {
@@ -204,6 +191,19 @@ router.get('/stats/overview', authenticate, async (req, res) => {
       rejected,
       courseWise
     });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get admission by ID
+router.get('/:id', authenticate, async (req, res) => {
+  try {
+    const admission = await Admission.findById(req.params.id);
+    if (!admission) {
+      return res.status(404).json({ error: 'Admission not found' });
+    }
+    res.json(admission);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

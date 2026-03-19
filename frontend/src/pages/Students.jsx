@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { 
   Search, 
@@ -45,6 +45,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { cn, getInitials, getStatusColor } from '@/lib/utils'
+import { toast } from 'sonner'
 
 // Mock student data
 const students = [
@@ -130,10 +131,38 @@ const itemVariants = {
 }
 
 export default function Students() {
+  const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [courseFilter, setCourseFilter] = useState('all')
   const [viewMode, setViewMode] = useState('table') // 'table' or 'grid'
+
+  const handleExportStudents = () => {
+    const rows = filteredStudents.map((student) => [
+      student.id,
+      student.name,
+      student.email,
+      student.course,
+      student.semester,
+      student.status
+    ])
+
+    const csv = [
+      'ID,Name,Email,Course,Semester,Status',
+      ...rows.map((row) => row.join(','))
+    ].join('\n')
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', 'students.csv')
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    URL.revokeObjectURL(url)
+    toast.success('Student list exported')
+  }
 
   const filteredStudents = students.filter(student => {
     const matchesSearch = student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -190,11 +219,11 @@ export default function Students() {
           </Select>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline">
+          <Button variant="outline" onClick={handleExportStudents}>
             <Download className="w-4 h-4 mr-2" />
             Export
           </Button>
-          <Button>
+          <Button onClick={() => navigate('/admissions')}>
             <UserPlus className="w-4 h-4 mr-2" />
             Add Student
           </Button>
@@ -280,7 +309,7 @@ export default function Students() {
                           <Eye className="w-4 h-4" />
                         </Link>
                       </Button>
-                      <Button variant="ghost" size="icon">
+                      <Button variant="ghost" size="icon" onClick={() => toast.info(`Edit flow for ${student.name} is ready to connect`)}>
                         <Edit className="w-4 h-4" />
                       </Button>
                       <DropdownMenu>
@@ -290,15 +319,15 @@ export default function Students() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => window.open(`mailto:${student.email}`, '_blank')}>
                             <Mail className="w-4 h-4 mr-2" />
                             Send Email
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => window.open(`tel:${student.phone.replace(/\s+/g, '')}`, '_self')}>
                             <Phone className="w-4 h-4 mr-2" />
                             Call
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-400">
+                          <DropdownMenuItem className="text-red-400" onClick={() => toast.info('Delete is restricted to admin API flow')}>
                             <Trash2 className="w-4 h-4 mr-2" />
                             Delete
                           </DropdownMenuItem>
@@ -323,9 +352,9 @@ export default function Students() {
               <Button variant="outline" size="sm" className="bg-primary/10 text-primary">
                 1
               </Button>
-              <Button variant="outline" size="sm">2</Button>
-              <Button variant="outline" size="sm">3</Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={() => toast.info('Demo pagination: page 2')}>2</Button>
+              <Button variant="outline" size="sm" onClick={() => toast.info('Demo pagination: page 3')}>3</Button>
+              <Button variant="outline" size="sm" onClick={() => toast.info('Demo pagination: next page')}>
                 <ChevronRight className="w-4 h-4" />
               </Button>
             </div>

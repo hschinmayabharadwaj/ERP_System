@@ -37,9 +37,10 @@ import {
 } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn, formatCurrency, formatDate, getInitials, getStatusColor } from '@/lib/utils'
+import { toast } from 'sonner'
 
 // Mock fee data
-const feeRecords = [
+const initialFeeRecords = [
   {
     id: 'FEE001',
     studentId: 'STU001',
@@ -123,6 +124,56 @@ const itemVariants = {
 export default function Fees() {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [feeRecords, setFeeRecords] = useState(initialFeeRecords)
+
+  const handleExport = () => {
+    const rows = feeRecords.map((record) => [
+      record.studentId,
+      record.studentName,
+      record.course,
+      record.totalAmount,
+      record.paidAmount,
+      record.pendingAmount,
+      record.status,
+      record.dueDate
+    ])
+
+    const csv = [
+      'Student ID,Student Name,Course,Total Fee,Paid,Pending,Status,Due Date',
+      ...rows.map((row) => row.join(','))
+    ].join('\n')
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', 'fees-report.csv')
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    URL.revokeObjectURL(url)
+    toast.success('Fee report exported')
+  }
+
+  const handleSendReminders = () => {
+    const pendingStudents = feeRecords.filter((record) => record.pendingAmount > 0).length
+    toast.success(`Reminders sent to ${pendingStudents} students`)
+  }
+
+  const handleMarkPayment = (recordId) => {
+    setFeeRecords((previous) => previous.map((record) => (
+      record.id === recordId
+        ? {
+            ...record,
+            paidAmount: record.totalAmount,
+            pendingAmount: 0,
+            status: 'paid',
+            lastPayment: new Date().toISOString().slice(0, 10)
+          }
+        : record
+    )))
+    toast.success('Payment recorded and fee status updated')
+  }
 
   const filteredRecords = feeRecords.filter(record => {
     const matchesSearch = record.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -245,11 +296,11 @@ export default function Fees() {
               </Select>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline">
+              <Button variant="outline" onClick={handleExport}>
                 <Download className="w-4 h-4 mr-2" />
                 Export
               </Button>
-              <Button variant="outline">
+              <Button variant="outline" onClick={handleSendReminders}>
                 <Send className="w-4 h-4 mr-2" />
                 Send Reminders
               </Button>
@@ -305,11 +356,15 @@ export default function Fees() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <Button variant="ghost" size="sm">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => toast.info(`Receipt generated for ${record.studentName}`)}
+                          >
                             <Receipt className="w-4 h-4" />
                           </Button>
                           {record.pendingAmount > 0 && (
-                            <Button variant="default" size="sm">
+                            <Button variant="default" size="sm" onClick={() => handleMarkPayment(record.id)}>
                               <CreditCard className="w-4 h-4 mr-1" />
                               Pay
                             </Button>
